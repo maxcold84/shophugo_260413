@@ -1,0 +1,89 @@
+<div class="panel">
+  <h1 style="margin-top:0;">{{ .form_heading }}</h1>
+  <form method="POST" action="{{ .form_action }}" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf" value="{{ .csrf_token }}">
+    <div class="grid two">
+      <div class="field">
+        <label>SKU</label>
+        <input name="sku" value="{{ .values.sku }}">
+        {{ if .errors.sku }}<span class="error">{{ .errors.sku }}</span>{{ end }}
+      </div>
+      <div class="field">
+        <label>Name</label>
+        <input name="name" value="{{ .values.name }}">
+        {{ if .errors.name }}<span class="error">{{ .errors.name }}</span>{{ end }}
+      </div>
+      <div class="field">
+        <label>Slug</label>
+        <input name="slug" value="{{ .values.slug }}">
+        {{ if .errors.slug }}<span class="error">{{ .errors.slug }}</span>{{ end }}
+      </div>
+      <div class="field">
+        <label>Price (minor units)</label>
+        <input name="price" type="number" value="{{ .values.price }}">
+        {{ if .errors.price }}<span class="error">{{ .errors.price }}</span>{{ end }}
+      </div>
+      <div class="field">
+        <label>Compare price (minor units)</label>
+        <input name="compare_price" type="number" value="{{ .values.compare_price }}">
+      </div>
+      <div class="field">
+        <label>Stock</label>
+        <input name="stock" type="number" value="{{ .values.stock }}">
+        {{ if .errors.stock }}<span class="error">{{ .errors.stock }}</span>{{ end }}
+      </div>
+      <div class="field">
+        <label>Sort order</label>
+        <input name="sort_order" type="number" value="{{ .values.sort_order }}">
+      </div>
+      <div class="field">
+        <label>Tags (comma separated)</label>
+        <input name="tags" value="{{ .values.tags }}">
+      </div>
+    </div>
+    <div class="field">
+      <label>Short description</label>
+      <textarea name="short_description" rows="3">{{ .values.short_description }}</textarea>
+    </div>
+    <div class="field">
+      <label>Description markdown</label>
+      <textarea name="description_markdown" rows="10">{{ .values.description_markdown }}</textarea>
+    </div>
+    <div class="grid two">
+      <div class="field">
+        <label>Meta title</label>
+        <input name="meta_title" value="{{ .values.meta_title }}">
+      </div>
+      <div class="field">
+        <label>Meta description</label>
+        <textarea name="meta_desc" rows="3">{{ .values.meta_desc }}</textarea>
+      </div>
+    </div>
+    <div class="field">
+      <label>Images</label>
+      <input name="images" type="file" multiple>
+    </div>
+    <div class="field">
+      <label>Categories</label>
+      {{ if .categories }}
+        {{ range .categories }}
+          <label style="display:block;font-weight:400;margin-bottom:8px;">
+            <input type="checkbox" name="categories" value="{{ .id }}" {{ if .checked }}checked{{ end }} style="width:auto;margin-right:8px;">
+            {{ .name }}
+          </label>
+        {{ end }}
+      {{ else }}
+        <p class="meta">Create categories first, then assign them here.</p>
+      {{ end }}
+    </div>
+    <div class="grid two">
+      <label style="display:block;font-weight:400;"><input type="checkbox" name="active" {{ if .values.active }}checked{{ end }} style="width:auto;margin-right:8px;">Active</label>
+      <label style="display:block;font-weight:400;"><input type="checkbox" name="visible" {{ if .values.visible }}checked{{ end }} style="width:auto;margin-right:8px;">Visible</label>
+      <label style="display:block;font-weight:400;"><input type="checkbox" name="featured" {{ if .values.featured }}checked{{ end }} style="width:auto;margin-right:8px;">Featured</label>
+    </div>
+    <div style="margin-top:24px;display:flex;gap:12px;">
+      <button type="submit">{{ .submit_label }}</button>
+      <a class="button secondary" href="/cms/products">Cancel</a>
+    </div>
+  </form>
+</div>

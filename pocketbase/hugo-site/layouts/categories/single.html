@@ -1,0 +1,35 @@
+{{ define "main" }}
+  {{ $matches := where hugo.Data.categories "slug" .Params.slug }}
+  {{ $category := index $matches 0 }}
+  <section class="shell pb-16">
+    <div class="hero-card">
+      <span class="pill">Category</span>
+      <h1 class="mt-4 text-4xl font-black">{{ $category.name }}</h1>
+      <p class="mt-3 max-w-2xl text-slate-600">{{ $category.description }}</p>
+    </div>
+    <div class="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      {{ $scratch := newScratch }}
+      {{ range hugo.Data.products }}
+        {{ $matched := false }}
+        {{ range .categories }}
+          {{ if eq .slug $category.slug }}
+            {{ $matched = true }}
+          {{ end }}
+        {{ end }}
+        {{ if $matched }}
+          {{ $scratch.Add "items" (slice .) }}
+        {{ end }}
+      {{ end }}
+      {{ $items := $scratch.Get "items" }}
+      {{ if $items }}
+        {{ range $items }}
+          {{ partial "product-card.html" . }}
+        {{ end }}
+      {{ else }}
+        <div class="product-card md:col-span-2 xl:col-span-3">
+          <p class="text-sm text-slate-600">No visible products currently map to this category.</p>
+        </div>
+      {{ end }}
+    </div>
+  </section>
+{{ end }}

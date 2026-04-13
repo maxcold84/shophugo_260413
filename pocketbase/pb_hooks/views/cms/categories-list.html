@@ -1,0 +1,39 @@
+<div class="panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;">
+    <div>
+      <h1 style="margin:0;">Categories</h1>
+      <p class="meta">Category visibility changes also affect storefront build output.</p>
+    </div>
+    <a class="button" href="/cms/categories/new">New category</a>
+  </div>
+  <table style="margin-top:24px;">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Slug</th>
+        <th>Visibility</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ if .categories }}
+        {{ range .categories }}
+        <tr>
+          <td>{{ .name }}</td>
+          <td>{{ .slug }}</td>
+          <td>{{ if .visible }}Visible{{ else }}Hidden{{ end }}</td>
+          <td class="row-actions">
+            <a href="/cms/categories/{{ .id }}/edit">Edit</a>
+            <form method="POST" action="/cms/categories/{{ .id }}/delete">
+              <input type="hidden" name="_csrf" value="{{ $.csrf_token }}">
+              <button type="submit" class="button secondary">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {{ end }}
+      {{ else }}
+        <tr><td colspan="4" class="meta">No categories yet.</td></tr>
+      {{ end }}
+    </tbody>
+  </table>
+</div>

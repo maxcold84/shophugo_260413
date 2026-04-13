@@ -1,0 +1,9 @@
+<article class="product-card">
+  <span class="pill">{{ if .featured }}Featured{{ else }}Product{{ end }}</span>
+  <h2 class="mt-4 text-2xl font-bold"><a href="/products/{{ .slug }}/">{{ .name }}</a></h2>
+  <p class="mt-3 text-sm text-slate-600">{{ .short_description }}</p>
+  <div class="mt-6 flex items-center justify-between gap-4">
+    <div class="text-lg font-bold text-slate-950">{{ partial "price.html" .price }}</div>
+    <a class="button-secondary" href="/products/{{ .slug }}/">View</a>
+  </div>
+</article>

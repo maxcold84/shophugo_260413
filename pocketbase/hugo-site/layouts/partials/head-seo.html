@@ -1,0 +1,31 @@
+{{ $title := site.Title }}
+{{ $description := site.Params.description }}
+{{ $image := "" }}
+{{ if eq .Type "products" }}
+  {{ $matches := where hugo.Data.products "slug" .Params.slug }}
+  {{ with index $matches 0 }}
+    {{ $title = printf "%s | %s" .meta.title site.Title }}
+    {{ $description = .meta.description }}
+    {{ with index .images 0 }}{{ $image = .url }}{{ end }}
+  {{ end }}
+{{ else if eq .Type "categories" }}
+  {{ $matches := where hugo.Data.categories "slug" .Params.slug }}
+  {{ with index $matches 0 }}
+    {{ $title = printf "%s | %s" .meta.title site.Title }}
+    {{ $description = .meta.description }}
+    {{ with .image }}{{ $image = .url }}{{ end }}
+  {{ end }}
+{{ else if .IsHome }}
+  {{ $title = printf "%s | Static-first ecommerce" site.Title }}
+{{ end }}
+<title>{{ $title }}</title>
+<meta name="description" content="{{ $description }}">
+<link rel="canonical" href="{{ .Permalink }}">
+<meta property="og:title" content="{{ $title }}">
+<meta property="og:description" content="{{ $description }}">
+<meta property="og:url" content="{{ .Permalink }}">
+<meta property="og:type" content="{{ if eq .Type "products" }}product{{ else }}website{{ end }}">
+{{ with $image }}<meta property="og:image" content="{{ . }}">{{ end }}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ $title }}">
+<meta name="twitter:description" content="{{ $description }}">

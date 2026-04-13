@@ -1,0 +1,26 @@
+<div class="space-y-4">
+  {{ if .warnings }}
+    <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+      {{ range .warnings }}<p style="margin:0 0 6px;">{{ . }}</p>{{ end }}
+    </div>
+  {{ end }}
+  {{ if .is_empty }}
+    <div class="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500">Your cart is empty.</div>
+  {{ else }}
+    {{ range .lines }}
+      <article class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div style="display:flex;justify-content:space-between;gap:16px;">
+          <div>
+            <h3 style="margin:0 0 6px;">{{ .name }}</h3>
+            <p style="margin:0;color:#64748b;">{{ .short_description }}</p>
+          </div>
+          <div style="text-align:right;">
+            <p style="margin:0 0 6px;">Qty {{ .qty }}</p>
+            <strong>{{ .line_total_label }}</strong>
+          </div>
+        </div>
+      </article>
+    {{ end }}
+    <p style="margin:0;font-weight:700;">Subtotal {{ .subtotal_label }}</p>
+  {{ end }}
+</div>

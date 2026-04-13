@@ -1,0 +1,20 @@
+<div class="panel">
+  <h1 style="margin-top:0;">Dashboard</h1>
+  <p class="meta">PocketBase owns privileged actions and build orchestration. Hugo owns public storefront rendering.</p>
+  <div class="grid two" style="margin-top:24px;">
+    <div class="panel">
+      <h2 style="margin-top:0;">Catalog</h2>
+      <p><strong>{{ .products_count }}</strong> products</p>
+      <p><strong>{{ .categories_count }}</strong> categories</p>
+      <p><strong>{{ .orders_count }}</strong> orders</p>
+    </div>
+    <div class="panel">
+      <h2 style="margin-top:0;">Build Queue</h2>
+      <p>Queue dirty: <strong>{{ .queue_dirty }}</strong></p>
+      <p>Build running: <strong>{{ .build_running }}</strong></p>
+      <p>Rerun requested: <strong>{{ .rerun_requested }}</strong></p>
+      <p>Last changed: <span class="meta">{{ .last_changed_at }}</span></p>
+      <p>Last built: <span class="meta">{{ .last_built_at }}</span></p>
+    </div>
+  </div>
+</div>

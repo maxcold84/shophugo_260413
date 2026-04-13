@@ -1,0 +1,29 @@
+Task:
+Implement the requested change in this repository while strictly following AGENTS.md and the revised contract docs.
+
+Before editing:
+1. Read AGENTS.md and the most relevant docs.
+2. Summarize the exact constraints that apply.
+3. Explicitly invoke the relevant repo-local skills.
+
+Subagent instructions:
+- Spawn one explorer subagent to inspect the current code and docs relevant to this task.
+- Spawn one worker subagent focused on PocketBase/runtime impact if the task touches auth, cart, checkout, stock, fragments, or build hooks.
+- Spawn one worker subagent focused on Hugo/static/SEO impact if the task touches templates, exported data, product/category pages, or metadata.
+- If the task is mainly a review, instead spawn subagents for security, correctness, architecture drift, and testing.
+- Wait for all subagents and summarize their findings before making final edits.
+
+Implementation rules:
+- Keep changes minimal but complete.
+- Do not introduce forbidden technologies.
+- Keep HTML-only browser contracts.
+- Add or update migrations for durable schema changes.
+- Update docs if behavior changes.
+- Preserve stable data shapes unless intentionally revised.
+
+Finish by providing:
+- changed files
+- migrations
+- risks
+- verification steps
+- whether the task preserved the static-first HDA architecture

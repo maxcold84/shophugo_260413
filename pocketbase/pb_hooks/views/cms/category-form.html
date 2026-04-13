@@ -1,0 +1,45 @@
+<div class="panel">
+  <h1 style="margin-top:0;">{{ .form_heading }}</h1>
+  <form method="POST" action="{{ .form_action }}" enctype="multipart/form-data">
+    <input type="hidden" name="_csrf" value="{{ .csrf_token }}">
+    <div class="grid two">
+      <div class="field">
+        <label>Name</label>
+        <input name="name" value="{{ .values.name }}">
+        {{ if .errors.name }}<span class="error">{{ .errors.name }}</span>{{ end }}
+      </div>
+      <div class="field">
+        <label>Slug</label>
+        <input name="slug" value="{{ .values.slug }}">
+        {{ if .errors.slug }}<span class="error">{{ .errors.slug }}</span>{{ end }}
+      </div>
+      <div class="field">
+        <label>Sort order</label>
+        <input type="number" name="sort_order" value="{{ .values.sort_order }}">
+      </div>
+      <div class="field">
+        <label>Image</label>
+        <input type="file" name="image">
+      </div>
+    </div>
+    <div class="field">
+      <label>Description</label>
+      <textarea name="description" rows="6">{{ .values.description }}</textarea>
+    </div>
+    <div class="grid two">
+      <div class="field">
+        <label>Meta title</label>
+        <input name="meta_title" value="{{ .values.meta_title }}">
+      </div>
+      <div class="field">
+        <label>Meta description</label>
+        <textarea name="meta_desc" rows="3">{{ .values.meta_desc }}</textarea>
+      </div>
+    </div>
+    <label style="display:block;font-weight:400;"><input type="checkbox" name="visible" {{ if .values.visible }}checked{{ end }} style="width:auto;margin-right:8px;">Visible</label>
+    <div style="margin-top:24px;display:flex;gap:12px;">
+      <button type="submit">{{ .submit_label }}</button>
+      <a class="button secondary" href="/cms/categories">Cancel</a>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,37 @@
+<div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+  <h2 style="margin-top:0;">Checkout summary</h2>
+  {{ if .warnings }}
+    <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+      {{ range .warnings }}<p style="margin:0 0 6px;">{{ . }}</p>{{ end }}
+    </div>
+  {{ end }}
+  {{ if .errors }}
+    <div class="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-900" style="margin-top:12px;">
+      {{ range .errors }}<p style="margin:0 0 6px;">{{ . }}</p>{{ end }}
+    </div>
+  {{ end }}
+  {{ if .success }}
+    <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900" style="margin-top:12px;">
+      {{ .success }}
+    </div>
+  {{ end }}
+  {{ if .is_empty }}
+    <p class="text-sm text-slate-500">No checkout lines are available.</p>
+  {{ else }}
+    <div style="margin-top:16px;">
+      {{ range .lines }}
+        <div style="display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #e2e8f0;">
+          <span>{{ .name }} × {{ .qty }}</span>
+          <strong>{{ .line_total_label }}</strong>
+        </div>
+      {{ end }}
+    </div>
+    <div style="margin-top:16px;">
+      <p style="display:flex;justify-content:space-between;"><span>Subtotal</span><strong>{{ .subtotal_label }}</strong></p>
+      <p style="display:flex;justify-content:space-between;"><span>Discount</span><strong>{{ .discount_label }}</strong></p>
+      <p style="display:flex;justify-content:space-between;"><span>Shipping</span><strong>{{ .shipping_label }}</strong></p>
+      <p style="display:flex;justify-content:space-between;"><span>Tax</span><strong>{{ .tax_label }}</strong></p>
+      <p style="display:flex;justify-content:space-between;font-size:18px;"><span>Total</span><strong>{{ .total_label }}</strong></p>
+    </div>
+  {{ end }}
+</div>

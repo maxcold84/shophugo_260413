@@ -1,0 +1,7 @@
+<div class="panel">
+  <h1 style="margin-top:0;">Build Status</h1>
+  <p class="meta">The CMS polls the persisted build state and logs rather than relying on browser-side state.</p>
+  <div id="build-status-panel" hx-get="/cms/fragments/build-status" hx-trigger="load, every 5s" hx-swap="innerHTML">
+    {{ .build_status_html | raw }}
+  </div>
+</div>

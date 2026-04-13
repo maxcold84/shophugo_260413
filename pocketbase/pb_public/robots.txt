@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Allow: /api/files/
+
+Disallow: /cms/
+Disallow: /api/
+Disallow: /actions/
+Disallow: /fragments/
+
+Sitemap: https://example.com/sitemap.xml

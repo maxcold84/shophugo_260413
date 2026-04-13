@@ -1,0 +1,13 @@
+{{ if .is_empty }}
+<div class="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500">No products match the current server-side filter.</div>
+{{ else }}
+<div class="grid gap-6 md:grid-cols-3">
+  {{ range .products }}
+  <article class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+    <h3 class="text-lg font-semibold text-slate-900"><a href="/products/{{ .slug }}/">{{ .name }}</a></h3>
+    <p class="mt-2 text-sm text-slate-600">{{ .short_description }}</p>
+    <p class="mt-4 text-base font-semibold text-slate-950">{{ .price_label }}</p>
+  </article>
+  {{ end }}
+</div>
+{{ end }}

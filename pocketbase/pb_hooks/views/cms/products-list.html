@@ -1,0 +1,43 @@
+<div class="panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;">
+    <div>
+      <h1 style="margin:0;">Products</h1>
+      <p class="meta">Storefront-visible changes here mark the build queue dirty.</p>
+    </div>
+    <a class="button" href="/cms/products/new">New product</a>
+  </div>
+  <table style="margin-top:24px;">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>SKU</th>
+        <th>Price</th>
+        <th>Stock</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{ if .products }}
+        {{ range .products }}
+        <tr>
+          <td><strong>{{ .name }}</strong><div class="meta">{{ .slug }}</div></td>
+          <td>{{ .sku }}</td>
+          <td>{{ .price_label }}</td>
+          <td>{{ .stock }}</td>
+          <td>{{ if .active }}Active{{ else }}Inactive{{ end }} / {{ if .visible }}Visible{{ else }}Hidden{{ end }}</td>
+          <td class="row-actions">
+            <a href="/cms/products/{{ .id }}/edit">Edit</a>
+            <form method="POST" action="/cms/products/{{ .id }}/delete">
+              <input type="hidden" name="_csrf" value="{{ $.csrf_token }}">
+              <button type="submit" class="button secondary">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {{ end }}
+      {{ else }}
+        <tr><td colspan="6" class="meta">No products yet.</td></tr>
+      {{ end }}
+    </tbody>
+  </table>
+</div>

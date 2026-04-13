@@ -1,0 +1,49 @@
+baseURL = "https://example.com/"
+languageCode = "en-us"
+title = "Pocket Hugo Store"
+enableRobotsTXT = true
+disableKinds = ["taxonomy", "term"]
+
+[build]
+  [build.buildStats]
+    enable = true
+  [[build.cachebusters]]
+    source = 'assets/notwatching/hugo_stats\.json'
+    target = 'css'
+  [[build.cachebusters]]
+    source = '(postcss|tailwind)\.config\.js'
+    target = 'css'
+
+[module]
+  [[module.mounts]]
+    source = "assets"
+    target = "assets"
+  [[module.mounts]]
+    disableWatch = true
+    source = "hugo_stats.json"
+    target = "assets/notwatching/hugo_stats.json"
+
+[sitemap]
+  changefreq = "weekly"
+  filename = "sitemap.xml"
+  priority = 0.5
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = false
+
+[params]
+  description = "Static-first ecommerce storefront rendered by Hugo and powered by PocketBase."
+
+[outputs]
+  home = ["HTML", "RSS", "SITEMAP", "ROBOTS"]
+
+[mediaTypes."text/plain"]
+  suffixes = ["txt"]
+
+[outputFormats.ROBOTS]
+  mediaType = "text/plain"
+  baseName = "robots"
+  isPlainText = true
+  notAlternative = true

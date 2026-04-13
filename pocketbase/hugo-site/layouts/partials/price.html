@@ -1,0 +1,3 @@
+{{ $dollars := div . 100 }}
+{{ $cents := mod . 100 }}
+<span>${{ $dollars }}.{{ printf "%02d" $cents }}</span>
