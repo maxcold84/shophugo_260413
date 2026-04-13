@@ -1,0 +1,72 @@
+function buildFragEsc(value) {
+    var input = value === null || value === undefined ? "" : String(value);
+    return input
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function buildFragLoadSession(sessionId) {
+    var records;
+    if (!sessionId) {
+        return null;
+    }
+    records = $app.findRecordsByFilter(
+        "cms_sessions",
+        "session_id = {:sid} && expires_at > {:now} && revoked_at = ''",
+        "-created",
+        1,
+        0,
+        { sid: sessionId, now: new Date().toISOString() }
+    );
+    return records && records.length ? records[0] : null;
+}
+
+routerAdd("GET", "/cms/fragments/build-status", function(c) {
+    var cookie = c.request().cookie("cms_session");
+    var sessionId = cookie ? cookie.value() : "";
+    var session = buildFragLoadSession(sessionId);
+    var states;
+    var state;
+    var logs;
+    var i;
+    var logHtml = "";
+
+    if (!session) {
+        return c.html(401, "<div class=\"flash error\">You need to sign in to continue.</div>");
+    }
+
+    states = $app.findRecordsByFilter("build_state", "id != ''", "created asc", 1, 0);
+    state = states && states.length ? states[0] : null;
+    logs = $app.findRecordsByFilter("build_logs", "id != ''", "-created", 10, 0);
+
+    for (i = 0; i < logs.length; i += 1) {
+        logHtml += [
+            "<div style=\"border:1px solid #e5e7eb;border-radius:12px;padding:12px;margin-bottom:12px;\">",
+            "<p style=\"margin:0 0 6px;\"><strong>" + buildFragEsc(logs[i].getString("status")) + "</strong> via " + buildFragEsc(logs[i].getString("triggered_by")) + "</p>",
+            "<p class=\"meta\" style=\"margin:0 0 6px;\">" + buildFragEsc(String(logs[i].created || "")) + (logs[i].getInt("duration_ms") ? (" · " + logs[i].getInt("duration_ms") + "ms") : "") + "</p>",
+            "<pre style=\"white-space:pre-wrap;background:#f8fafc;padding:12px;border-radius:10px;margin:0;\">" + buildFragEsc(logs[i].getString("output")) + "</pre>",
+            "</div>"
+        ].join("");
+    }
+
+    if (!state) {
+        return c.html(200, "<div class=\"panel\"><p class=\"meta\">No build state row exists yet.</p></div>");
+    }
+
+    return c.html(200, [
+        "<div class=\"panel\"><div class=\"grid two\"><div>",
+        "<h2 style=\"margin-top:0;\">Current state</h2>",
+        "<p>Queue dirty: <strong>" + state.getBool("queue_dirty") + "</strong></p>",
+        "<p>Build running: <strong>" + state.getBool("build_running") + "</strong></p>",
+        "<p>Rerun requested: <strong>" + state.getBool("rerun_requested") + "</strong></p>",
+        "<p>Last changed: <span class=\"meta\">" + buildFragEsc(state.getString("last_changed_at")) + "</span></p>",
+        "<p>Last built: <span class=\"meta\">" + buildFragEsc(state.getString("last_built_at")) + "</span></p>",
+        "<p>Build started: <span class=\"meta\">" + buildFragEsc(state.getString("build_started_at")) + "</span></p>",
+        "</div><div><h2 style=\"margin-top:0;\">Recent logs</h2>",
+        (logHtml || "<p class=\"meta\">No build logs yet.</p>"),
+        "</div></div></div>"
+    ].join(""));
+});

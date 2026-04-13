@@ -5,6 +5,18 @@ description: Run the repository’s manual smoke-test mindset after changes to c
 
 Use this skill near the end of a task when behavior changed in auth, CMS CRUD, build pipeline, cart, checkout, export, or SEO.
 
+## Compose with pocketbase-alt-port
+When verification needs a disposable local PocketBase runtime, use `.agents/skills/pocketbase-alt-port/SKILL.md` together with this skill.
+Prefer:
+- `powershell -ExecutionPolicy Bypass -File pocketbase/ensure-alt-port.ps1 -Port <preferred-port> -Dev`
+- reusing the currently running repo-local verification port before launching another one
+- checking `/`, `/cms/login`, and `/fragments/cart/checkout-summary` before deeper scenario testing
+
+Use this composition when:
+- custom CMS or fragment routes may be masked by the wrong server process
+- the shared/global PocketBase binary may be using another install's default paths
+- you need to compare two local runtimes without stopping the user's main dev server
+
 ## Verification mindset
 Phase one prioritizes manual verification with structured scenarios.
 Do not stop at “the code looks right.” Check the actual operational flow.

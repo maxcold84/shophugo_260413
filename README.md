@@ -38,7 +38,7 @@ The build/export flow writes:
 
 ## Startup pitfalls
 
-These are the two failure modes that were reproduced locally and then fixed:
+These are the recurring failure modes that were reproduced locally and should be checked first:
 
 1. **Wrong PocketBase working paths**
    If you launch a shared/global `pocketbase.exe` directly, it may default to that binary's own `pb_data/`, `pb_hooks/`, `pb_migrations/`, and `pb_public/` directories instead of this repository.
@@ -64,14 +64,31 @@ These are the two failure modes that were reproduced locally and then fixed:
    - load helper files into the same JSVM context from `main.pb.js`
    - do not rely on `module.exports` inside `.pb.js` files
 
+3. **PocketBase JSVM callback scope drift**
+   Symptoms:
+   - `/cms/login` returns generic `400` JSON instead of HTML
+   - `/fragments/cart/checkout-summary` returns generic `400` JSON or `404`
+   - dev logs show repeated errors such as:
+     - `ReferenceError: renderLoginPage is not defined`
+     - `ReferenceError: renderCheckoutSummary is not defined`
+     - `TypeError: Cannot read property 'renderLoginPage' of undefined or null`
+     - `ReferenceError: CONFIG is not defined`
+
+   Prevention:
+   - verify `/cms/login` and `/fragments/cart/checkout-summary` immediately after hook changes
+   - treat generic PocketBase `400` JSON on custom HTML routes as JSVM execution failure, not normal app validation
+   - prefer simpler callback shapes for critical routes while debugging JSVM behavior
+
 Current hook layout:
 - `pocketbase/pb_hooks/main.pb.js` is the single PocketBase entrypoint
 - `config.js`, `utils.js`, `auth.js`, `build.js`, `cart.js` are shared helper sources loaded by `main.pb.js`
 - `routes_*.js` files register routes/cron jobs inside the same JSVM context
+- `pocketbase/start-alt-port.ps1` is the preferred disposable debug launcher on a fresh localhost port
 
 Static serving note:
 - `pocketbase/serve.ps1` runs with `--indexFallback=false`
 - this project is not an SPA, so unknown routes should fail clearly instead of silently returning the storefront home page
+- when you need a disposable debug server, prefer `pocketbase/ensure-alt-port.ps1` so an already-running repo-local PocketBase port is reused before a new port is started
 
 Tailwind processing notes:
 - the storefront uses Hugo native `css.TailwindCSS`

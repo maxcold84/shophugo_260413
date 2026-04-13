@@ -1,0 +1,31 @@
+$app.logger().info("loading login.pb.js");
+
+function loginEsc(value) {
+    var input = value === null || value === undefined ? "" : String(value);
+    return input
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function loginPage(errorMessage, emailValue) {
+    return [
+        "<!doctype html>",
+        "<html lang=\"en\">",
+        "<head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>CMS Login</title>",
+        "<style>body{font-family:Arial,sans-serif;background:#0f172a;color:#e2e8f0;display:grid;place-items:center;min-height:100vh;margin:0;}.card{width:min(420px,92vw);background:#fff;color:#0f172a;border-radius:24px;padding:32px;box-shadow:0 20px 60px rgba(15,23,42,.35);}h1{margin-top:0;margin-bottom:8px;font-size:28px;}p{color:#475569;}label{display:block;font-size:14px;font-weight:600;margin-bottom:8px;}input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:12px;box-sizing:border-box;margin-bottom:16px;}button{width:100%;padding:12px;border:none;border-radius:12px;background:#0f172a;color:#fff;font-weight:700;cursor:pointer;}.flash{padding:12px 16px;border-radius:12px;margin-bottom:16px;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;}</style>",
+        "</head><body><section class=\"card\"><h1>CMS Login</h1><p>Use a PocketBase superuser account to access the privileged CMS routes.</p>",
+        (errorMessage ? ("<div class=\"flash\">" + loginEsc(errorMessage) + "</div>") : ""),
+        "<form method=\"POST\" action=\"/cms/login\">",
+        "<label for=\"email\">Email</label><input id=\"email\" type=\"email\" name=\"email\" value=\"" + loginEsc(emailValue || "") + "\" autocomplete=\"email\">",
+        "<label for=\"password\">Password</label><input id=\"password\" type=\"password\" name=\"password\" autocomplete=\"current-password\">",
+        "<button type=\"submit\">Sign in</button>",
+        "</form></section></body></html>"
+    ].join("");
+}
+
+routerAdd("GET", "/cms/login", function(c) {
+    return c.html(200, loginPage("", ""));
+});

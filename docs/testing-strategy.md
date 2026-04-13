@@ -56,6 +56,16 @@ If Scenario 1 fails with `ReferenceError: module is not defined`:
 - treat it as a PocketBase JSVM/CommonJS mismatch
 - keep the single-entry `pb_hooks/main.pb.js` loader structure and do not convert `.pb.js` entrypoints into Node-style modules
 
+If Scenario 1 fails with generic PocketBase `400` JSON on custom HTML routes:
+- inspect the dev server logs immediately
+- treat it as a JSVM hook execution problem, not as expected application validation
+- repeated local examples have included:
+  - `ReferenceError: renderLoginPage is not defined`
+  - `ReferenceError: renderCheckoutSummary is not defined`
+  - `TypeError: Cannot read property 'renderLoginPage' of undefined or null`
+  - `ReferenceError: CONFIG is not defined`
+- re-check hook composition before debugging form inputs or route patterns
+
 ### Scenario 2: CMS authentication
 1. Navigate to `/cms/dashboard` — expect redirect to `/cms/login`
 2. Submit invalid credentials — expect HTML error, no sensitive leaks

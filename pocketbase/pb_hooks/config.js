@@ -13,7 +13,7 @@ globalThis.STORE_CONFIG = {
         secure: false
     },
     build: {
-        cronSpec: "* * * * *",
+        cronSpec: "*/1 * * * *",
         quietWindowMs: 3000,
         staleLockMs: 300000,
         lockOwner: "pb_hooks.build",

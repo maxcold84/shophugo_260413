@@ -5,6 +5,18 @@ description: Maintain restart-safe build queueing, stale-lock recovery, export t
 
 Use this skill whenever a task touches export, build queue state, Hugo invocation, cron behavior, build logs, or stale-lock handling.
 
+## Compose with pocketbase-alt-port
+When build verification needs a fresh local PocketBase instance, use `.agents/skills/pocketbase-alt-port/SKILL.md` together with this skill.
+Prefer:
+- `powershell -ExecutionPolicy Bypass -File pocketbase/ensure-alt-port.ps1 -Port <preferred-port> -Dev`
+- reusing the currently running repo-local verification port before launching another one
+- repo-local `pb_data`, `pb_hooks`, `pb_migrations`, and `pb_public` only
+
+Use this composition when:
+- the global PocketBase binary may point at the wrong default directories
+- a stale dev server could hide build/export changes
+- you need to inspect build hook behavior without disturbing another local instance
+
 ## Canonical flow
 1. A build-target mutation occurs.
 2. PocketBase marks `build_state.queue_dirty = true`.

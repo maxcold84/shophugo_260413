@@ -1,6 +1,3 @@
-var cart = globalThis.STORE_CART;
-var utils = globalThis.STORE_UTILS;
-
 function validateAddress(c) {
     var address = {
         recipient_name: String(c.request().formValue("recipient_name") || "").replace(/^\s+|\s+$/g, ""),
@@ -50,27 +47,27 @@ function buildItemsSnapshot(lines) {
 
 function renderCheckoutSummary(lines, warnings, errors, success) {
     var totals = computeTotals(lines);
-    return utils.renderView(__hooks + "/views/hda/checkout-summary.html", {
+    return globalThis.STORE_UTILS.renderView(__hooks + "/views/hda/checkout-summary.html", {
         lines: lines,
         warnings: warnings || [],
         errors: errors || [],
         success: success || "",
-        subtotal_label: utils.formatMoney(totals.subtotal),
-        discount_label: utils.formatMoney(totals.discount),
-        shipping_label: utils.formatMoney(totals.shipping),
-        tax_label: utils.formatMoney(totals.tax),
-        total_label: utils.formatMoney(totals.total),
+        subtotal_label: globalThis.STORE_UTILS.formatMoney(totals.subtotal),
+        discount_label: globalThis.STORE_UTILS.formatMoney(totals.discount),
+        shipping_label: globalThis.STORE_UTILS.formatMoney(totals.shipping),
+        tax_label: globalThis.STORE_UTILS.formatMoney(totals.tax),
+        total_label: globalThis.STORE_UTILS.formatMoney(totals.total),
         is_empty: lines.length === 0
     });
 }
 
 function requestLines(c) {
-    var ids = utils.getFormValues(c, "product_id");
-    var qtys = utils.getFormValues(c, "qty");
+    var ids = globalThis.STORE_UTILS.getFormValues(c, "product_id");
+    var qtys = globalThis.STORE_UTILS.getFormValues(c, "qty");
     var items = [];
     var i;
     for (i = 0; i < ids.length; i += 1) {
-        items.push({ product_id: ids[i], qty: utils.parseInteger(qtys[i], 1) });
+        items.push({ product_id: ids[i], qty: globalThis.STORE_UTILS.parseInteger(qtys[i], 1) });
     }
     return items;
 }
@@ -85,23 +82,29 @@ function decrementStock(line) {
     $app.save(product);
 }
 
-STORE_CHECKOUT = {
-    validateAddress: validateAddress,
-    computeTotals: computeTotals,
-    buildItemsSnapshot: buildItemsSnapshot,
-    renderCheckoutSummary: renderCheckoutSummary,
-    requestLines: requestLines,
-    decrementStock: decrementStock
-};
-
 function registerCheckoutRoutes() {
+    routerAdd("GET", "/__probe-checkout", function(c) {
+        return c.string(200, "probe-checkout-ok");
+    });
+
     routerAdd("GET", "/fragments/cart/checkout-summary", function(c) {
-        return c.html(200, renderCheckoutSummary([], [], [], ""));
+        return c.html(200, $template.loadFiles(__hooks + "/views/hda/checkout-summary.html").render({
+            lines: [],
+            warnings: [],
+            errors: [],
+            success: "",
+            subtotal_label: "$0.00",
+            discount_label: "$0.00",
+            shipping_label: "$0.00",
+            tax_label: "$0.00",
+            total_label: "$0.00",
+            is_empty: true
+        }));
     });
 
     routerAdd("POST", "/actions/checkout/prepare", function(c) {
-        var customerId = cart.resolveCustomerId(c);
-        var normalized = customerId ? { lines: cart.loadAuthenticatedCart(customerId), warnings: [] } : cart.normalizeGuestLines(requestLines(c));
+        var customerId = globalThis.STORE_CART.resolveCustomerId(c);
+        var normalized = customerId ? { lines: globalThis.STORE_CART.loadAuthenticatedCart(customerId), warnings: [] } : globalThis.STORE_CART.normalizeGuestLines(requestLines(c));
         if (!normalized.lines.length) {
             return c.html(409, renderCheckoutSummary([], normalized.warnings, ["Your cart is empty or invalid."], ""));
         }
@@ -109,8 +112,8 @@ function registerCheckoutRoutes() {
     });
 
     routerAdd("POST", "/actions/checkout/submit", function(c) {
-        var customerId = cart.resolveCustomerId(c);
-        var normalized = customerId ? { lines: cart.loadAuthenticatedCart(customerId), warnings: [] } : cart.normalizeGuestLines(requestLines(c));
+        var customerId = globalThis.STORE_CART.resolveCustomerId(c);
+        var normalized = customerId ? { lines: globalThis.STORE_CART.loadAuthenticatedCart(customerId), warnings: [] } : globalThis.STORE_CART.normalizeGuestLines(requestLines(c));
         var addressResult;
         var totals;
         var orders;
@@ -154,4 +157,5 @@ function registerCheckoutRoutes() {
 }
 
 registerCheckoutRoutes();
+$app.logger().info("loaded routes_checkout");
 

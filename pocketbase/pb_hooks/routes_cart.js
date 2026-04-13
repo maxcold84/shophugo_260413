@@ -1,46 +1,43 @@
-var cart = globalThis.STORE_CART;
-var utils = globalThis.STORE_UTILS;
-
 function registerCartRoutes() {
     routerAdd("GET", "/fragments/cart/mini", function(c) {
-        var current = cart.currentCart(c);
-        return c.html(200, cart.renderMiniCart(current.lines));
+        var current = globalThis.STORE_CART.currentCart(c);
+        return c.html(200, globalThis.STORE_CART.renderMiniCart(current.lines));
     });
 
     routerAdd("GET", "/fragments/cart/lines", function(c) {
-        var current = cart.currentCart(c);
-        return c.html(200, cart.renderCartLines(current.lines, current.warnings));
+        var current = globalThis.STORE_CART.currentCart(c);
+        return c.html(200, globalThis.STORE_CART.renderCartLines(current.lines, current.warnings));
     });
 
     routerAdd("POST", "/actions/cart/sync-guest", function(c) {
-        var customerId = cart.resolveCustomerId(c);
-        var intent = cart.getGuestIntent(c);
+        var customerId = globalThis.STORE_CART.resolveCustomerId(c);
+        var intent = globalThis.STORE_CART.getGuestIntent(c);
         var current;
 
         if (customerId) {
-            current = { lines: cart.syncAuthenticatedCart(customerId, intent), warnings: [] };
+            current = { lines: globalThis.STORE_CART.syncAuthenticatedCart(customerId, intent), warnings: [] };
         } else {
-            current = cart.normalizeGuestLines(intent);
+            current = globalThis.STORE_CART.normalizeGuestLines(intent);
         }
 
-        return c.html(200, cart.renderCartLines(current.lines, current.warnings));
+        return c.html(200, globalThis.STORE_CART.renderCartLines(current.lines, current.warnings));
     });
 
     routerAdd("POST", "/actions/cart/add", function(c) {
-        var current = cart.normalizeGuestLines([{
+        var current = globalThis.STORE_CART.normalizeGuestLines([{
             product_id: String(c.request().formValue("product_id") || ""),
-            qty: utils.parseInteger(c.request().formValue("qty"), 1)
+            qty: globalThis.STORE_UTILS.parseInteger(c.request().formValue("qty"), 1)
         }]);
-        return c.html(200, cart.renderMiniCart(current.lines));
+        return c.html(200, globalThis.STORE_CART.renderMiniCart(current.lines));
     });
 
     routerAdd("POST", "/actions/cart/update", function(c) {
-        var current = cart.currentCart(c);
-        return c.html(200, cart.renderCartLines(current.lines, current.warnings));
+        var current = globalThis.STORE_CART.currentCart(c);
+        return c.html(200, globalThis.STORE_CART.renderCartLines(current.lines, current.warnings));
     });
 
     routerAdd("POST", "/actions/cart/remove", function(c) {
-        return c.html(200, cart.renderCartLines([], []));
+        return c.html(200, globalThis.STORE_CART.renderCartLines([], []));
     });
 }
 

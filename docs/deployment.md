@@ -56,6 +56,7 @@ Hook loading notes:
 - if PocketBase reports `ReferenceError: module is not defined`, check whether a hook file is assuming Node/CommonJS semantics
 - if routes return `404` even though hook files exist, first confirm PocketBase is using this repo's `--hooksDir` and not the executable's default external path
 - if routes return generic `400` JSON with custom hook paths, check whether helper symbols are crossing JSVM file boundaries incorrectly; prefer loading helpers from `main.pb.js` in one shared context
+- if dev logs show `renderLoginPage is not defined`, `renderCheckoutSummary is not defined`, `Cannot read property 'renderLoginPage' of undefined or null`, or `CONFIG is not defined`, treat that as a JSVM callback-scope failure rather than a normal route validation issue
 
 On first startup:
 - Create a superuser through PocketBase admin UI at `/_/`
@@ -77,6 +78,20 @@ If `GET /cms/login` returns `404`:
   - `--publicDir=<repo>/pocketbase/pb_public`
 - the default values may point to the PocketBase binary's own directory, especially when using a globally installed binary
 - `serve.ps1` exists to avoid this drift
+
+If a custom HTML route returns generic PocketBase `400` JSON:
+- inspect dev logs immediately
+- if the response body is:
+  - `{"data":{},"message":"Something went wrong while processing your request.","status":400}`
+  treat it as hook execution failure
+- common repeated local causes have been:
+  - JSVM helper state not surviving into route callbacks
+  - callback references to symbols that are not stable in PocketBase JSVM
+  - mixing Node/CommonJS assumptions into PocketBase hook composition
+
+If you need a disposable debug instance:
+- use `powershell -ExecutionPolicy Bypass -File pocketbase/start-alt-port.ps1 -Port <fresh-port> -Dev`
+- prefer a fresh localhost port over reusing an unknown old dev instance
 
 If an unknown CMS or fragment path returns the storefront home page:
 - check whether PocketBase was started with `--indexFallback=true`
@@ -252,6 +267,8 @@ curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8090/
 curl -I http://127.0.0.1:8090/cms/login
 curl -I http://127.0.0.1:8090/fragments/cart/checkout-summary
 # Both should return 200 and HTML content type
+
+# If either returns generic 400 JSON, inspect dev logs before changing route patterns
 ```
 
 ### Key metrics to watch
@@ -292,6 +309,8 @@ Before considering deployment ready, verify:
 - PocketBase is started against this repo's `pb_data/`, `pb_hooks/`, `pb_migrations/`, and `pb_public/` directories
 - migrations apply cleanly on fresh database
 - `pb_hooks/main.pb.js` loads and custom CMS/fragment routes respond
+- `/cms/login` returns HTML rather than generic PocketBase `400` JSON
+- `/fragments/cart/checkout-summary` returns HTML rather than generic PocketBase `400` JSON
 - CMS login works with HTTPS cookies
 - Hugo build completes via cron hook
 - robots.txt disallows `/cms/`, `/api/`, `/actions/`, `/fragments/`
