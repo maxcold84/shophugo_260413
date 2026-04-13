@@ -1,5 +1,5 @@
-var config = require(__hooks + "/config.js");
-var utils = require(__hooks + "/utils.js");
+var config = globalThis.STORE_CONFIG;
+var utils = globalThis.STORE_UTILS;
 
 function resolveCustomerId(c) {
     var cookie = c.request().cookie(config.customer.cookieName);
@@ -187,50 +187,14 @@ function currentCart(c) {
     return normalizeGuestLines(getGuestIntent(c));
 }
 
-routerAdd("GET", "/fragments/cart/mini", function(c) {
-    var cart = currentCart(c);
-    return c.html(200, renderMiniCart(cart.lines));
-});
-
-routerAdd("GET", "/fragments/cart/lines", function(c) {
-    var cart = currentCart(c);
-    return c.html(200, renderCartLines(cart.lines, cart.warnings));
-});
-
-routerAdd("POST", "/actions/cart/sync-guest", function(c) {
-    var customerId = resolveCustomerId(c);
-    var intent = getGuestIntent(c);
-    var cart;
-    if (customerId) {
-        cart = { lines: syncAuthenticatedCart(customerId, intent), warnings: [] };
-    } else {
-        cart = normalizeGuestLines(intent);
-    }
-    return c.html(200, renderCartLines(cart.lines, cart.warnings));
-});
-
-routerAdd("POST", "/actions/cart/add", function(c) {
-    var cart = normalizeGuestLines([{
-        product_id: String(c.request().formValue("product_id") || ""),
-        qty: utils.parseInteger(c.request().formValue("qty"), 1)
-    }]);
-    return c.html(200, renderMiniCart(cart.lines));
-});
-
-routerAdd("POST", "/actions/cart/update", function(c) {
-    var cart = currentCart(c);
-    return c.html(200, renderCartLines(cart.lines, cart.warnings));
-});
-
-routerAdd("POST", "/actions/cart/remove", function(c) {
-    return c.html(200, renderCartLines([], []));
-});
-
-module.exports = {
+globalThis.STORE_CART = {
     resolveCustomerId: resolveCustomerId,
+    getGuestIntent: getGuestIntent,
+    syncAuthenticatedCart: syncAuthenticatedCart,
     loadAuthenticatedCart: loadAuthenticatedCart,
     normalizeGuestLines: normalizeGuestLines,
     summarizeCart: summarizeCart,
     renderMiniCart: renderMiniCart,
-    renderCartLines: renderCartLines
+    renderCartLines: renderCartLines,
+    currentCart: currentCart
 };

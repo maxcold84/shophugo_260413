@@ -247,9 +247,14 @@ Additional requirement:
 
 ### Cron worker registration
 
+Compatibility notes:
+- `cronAdd()` expressions in this repository must use PocketBase-supported 5-segment cron syntax such as `"* * * * *"`.
+- Do not use 6-segment cron expressions copied from other cron libraries. PocketBase rejects them during hook registration.
+- A coarser cron cadence is acceptable as long as the quiet-window decision still uses persisted `build_state.last_changed_at`.
+
 ```javascript
 // pb_hooks/build.pb.js — cron worker (ES5 only)
-cronAdd("build_check", "*/5 * * * * *", function() {
+cronAdd("build_check", "* * * * *", function() {
     var states = $app.findRecordsByFilter("build_state", "id != ''", "", 1, 0);
     if (!states || states.length === 0) { return; }
 

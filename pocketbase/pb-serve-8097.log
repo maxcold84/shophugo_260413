@@ -1,0 +1,4 @@
+2026/04/14 00:38:59 Server started at http://127.0.0.1:8097
+├─ REST API:  http://127.0.0.1:8097/api/
+└─ Dashboard: http://127.0.0.1:8097/_/
+File D:\cod\codex\pokcet-hugo\pocketbase\pb_hooks\stock.pb.js changed, please restart the app manually

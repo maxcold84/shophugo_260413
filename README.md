@@ -21,8 +21,8 @@ This repository uses:
 #    visible PATH directory such as:
 #    %LOCALAPPDATA%\\Microsoft\\WinGet\\Links\\tailwindcss.exe
 
-# 2. Start PocketBase from the pocketbase/ directory
-cd pocketbase && ./pocketbase serve
+# 2. Start PocketBase with the repo-local data/hooks/migrations/public paths
+cd pocketbase && .\serve.ps1
 
 # 3. Create a superuser via PocketBase admin UI
 #    Visit http://127.0.0.1:8090/_/
@@ -35,6 +35,39 @@ The build/export flow writes:
 - normalized storefront JSON into `pocketbase/hugo-site/data/`
 - generated route content into `pocketbase/hugo-site/content/generated/`
 - final static output into `pocketbase/pb_public/`
+
+## Startup pitfalls
+
+These are the two failure modes that were reproduced locally and then fixed:
+
+1. **Wrong PocketBase working paths**
+   If you launch a shared/global `pocketbase.exe` directly, it may default to that binary's own `pb_data/`, `pb_hooks/`, `pb_migrations/`, and `pb_public/` directories instead of this repository.
+   Symptom:
+   - `/cms/login` returns `404`
+   - custom fragment routes return `404`
+   - migrations/hooks from this repo appear to be ignored
+
+   Prevention:
+   - start PocketBase through `pocketbase/serve.ps1`
+   - or pass `--dir`, `--hooksDir`, `--migrationsDir`, and `--publicDir` explicitly
+
+2. **PocketBase JSVM module assumptions**
+   PocketBase `pb_hooks` are **not** Node/CommonJS modules.
+   Symptoms:
+   - `ReferenceError: module is not defined`
+   - helpers exported from one hook file are `undefined` inside another
+   - routes load but return generic `400` JSON errors
+
+   Prevention:
+   - keep PocketBase-facing hook entry at `pocketbase/pb_hooks/main.pb.js`
+   - treat `main.pb.js` as the only JSVM entrypoint
+   - load helper files into the same JSVM context from `main.pb.js`
+   - do not rely on `module.exports` inside `.pb.js` files
+
+Current hook layout:
+- `pocketbase/pb_hooks/main.pb.js` is the single PocketBase entrypoint
+- `config.js`, `utils.js`, `auth.js`, `build.js`, `cart.js` are shared helper sources loaded by `main.pb.js`
+- `routes_*.js` files register routes/cron jobs inside the same JSVM context
 
 Tailwind processing notes:
 - the storefront uses Hugo native `css.TailwindCSS`
@@ -128,24 +161,28 @@ The browser may not be the source of truth for:
 
 ```text
 pocketbase/
-├── pocketbase
 ├── pb_data/
-├── pb_public/
 ├── pb_hooks/
-│   ├── views/
-│   │   ├── cms/
-│   │   └── hda/
-│   ├── auth.pb.js
-│   ├── build.pb.js
-│   ├── cms.pb.js
-│   ├── products.pb.js
-│   ├── categories.pb.js
-│   ├── cart.pb.js
-│   ├── checkout.pb.js
-│   ├── stock.pb.js
+│   ├── main.pb.js
+│   ├── config.js
 │   ├── utils.js
-│   └── config.js
+│   ├── auth.js
+│   ├── build.js
+│   ├── cart.js
+│   ├── routes_auth.js
+│   ├── routes_build.js
+│   ├── routes_cms.js
+│   ├── routes_products.js
+│   ├── routes_categories.js
+│   ├── routes_cart.js
+│   ├── routes_checkout.js
+│   ├── routes_stock.js
+│   └── views/
+│       ├── cms/
+│       └── hda/
 ├── pb_migrations/
+├── pb_public/
+├── serve.ps1
 └── hugo-site/
     ├── assets/
     │   ├── css/input.css
@@ -173,4 +210,3 @@ In `pb_hooks`:
 - no arrow functions, no async/await, no Promise assumptions
 - no ESM import/export, no class syntax
 - no timer-based debounce, no in-memory queue state as durable truth
-"# shophugo_260413" 

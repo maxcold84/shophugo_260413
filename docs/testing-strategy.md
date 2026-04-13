@@ -33,11 +33,28 @@ These scenarios must pass before considering any major implementation complete.
 
 ### Scenario 1: Fresh start
 1. Delete `pb_data/` (fresh database)
-2. Start PocketBase
-3. Verify migrations apply without errors
-4. Verify PocketBase admin UI is accessible at `/_/`
-5. Create a superuser account
-6. Verify `/cms/login` page renders
+2. Start PocketBase with repo-local paths
+3. Preferred: `cd pocketbase && .\serve.ps1`
+4. If using a global `pocketbase.exe`, pass `--dir`, `--hooksDir`, `--migrationsDir`, and `--publicDir` explicitly
+5. Verify the process is not pointing at another installation's default directories
+6. Verify migrations apply without errors
+7. Verify PocketBase admin UI is accessible at `/_/`
+8. Create a superuser account
+9. Verify `/cms/login` page renders
+10. Verify `GET /fragments/cart/checkout-summary` returns HTML
+
+If Scenario 1 fails during bootstrap:
+- treat the failed run as potentially partial state
+- for development verification, clear the dev `pb_data/` again before retrying
+- do not trust a partially applied initial migration to self-heal on the next boot without cleanup
+
+If Scenario 1 fails with `404` on custom routes:
+- treat it as a startup-path problem first, not a route-definition problem
+- verify the running PocketBase process is using this repo's `pb_hooks/`
+
+If Scenario 1 fails with `ReferenceError: module is not defined`:
+- treat it as a PocketBase JSVM/CommonJS mismatch
+- keep the single-entry `pb_hooks/main.pb.js` loader structure and do not convert `.pb.js` entrypoints into Node-style modules
 
 ### Scenario 2: CMS authentication
 1. Navigate to `/cms/dashboard` — expect redirect to `/cms/login`

@@ -1,4 +1,4 @@
-var config = require(__hooks + "/config.js");
+var config = globalThis.STORE_CONFIG;
 
 function escapeHtml(value) {
     var input = value === null || value === undefined ? "" : String(value);
@@ -299,7 +299,7 @@ function nowIso() {
     return new Date().toISOString();
 }
 
-module.exports = {
+globalThis.STORE_UTILS = {
     escapeHtml: escapeHtml,
     stripHtml: stripHtml,
     slugify: slugify,

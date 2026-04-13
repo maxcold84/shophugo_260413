@@ -1,5 +1,5 @@
-var config = require(__hooks + "/config.js");
-var utils = require(__hooks + "/utils.js");
+var config = globalThis.STORE_CONFIG;
+var utils = globalThis.STORE_UTILS;
 
 function getBuildState() {
     var records = $app.findRecordsByFilter("build_state", "id != ''", "created asc", 1, 0);
@@ -231,32 +231,12 @@ function recoverStaleLockIfNeeded() {
     return true;
 }
 
-cronAdd("storefront_build_tick", config.build.cronSpec, function() {
-    var state;
-    var lastChangedAt;
-    recoverStaleLockIfNeeded();
-    state = getBuildState();
-    if (state.getBool("build_running") || !state.getBool("queue_dirty")) {
-        return;
-    }
-    lastChangedAt = state.getDateTime("last_changed_at").time().unixMilli();
-    if ((Date.now() - lastChangedAt) < config.build.quietWindowMs) {
-        return;
-    }
-    state.set("build_running", true);
-    state.set("queue_dirty", false);
-    state.set("rerun_requested", false);
-    state.set("build_started_at", utils.nowIso());
-    state.set("lock_owner", config.build.lockOwner);
-    $app.save(state);
-    runBuild("cron");
-});
-
-module.exports = {
+globalThis.STORE_BUILD = {
     getBuildState: getBuildState,
     logBuild: logBuild,
     markBuildDirty: markBuildDirty,
     exportStorefrontData: exportStorefrontData,
     renderBuildStatusFragment: renderBuildStatusFragment,
-    recoverStaleLockIfNeeded: recoverStaleLockIfNeeded
+    recoverStaleLockIfNeeded: recoverStaleLockIfNeeded,
+    runBuild: runBuild
 };

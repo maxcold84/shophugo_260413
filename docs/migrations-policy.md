@@ -159,7 +159,28 @@ That means:
 
 ---
 
-## 11. Reference migration pattern
+## 11. PocketBase JS migration compatibility notes
+
+PocketBase JS migrations in this repository must match the current JS runtime contract, not older examples copied from other versions.
+
+Rules:
+- define collection fields with `fields`, not legacy `schema`
+- define indexes only after the referenced columns are actually created by the field definitions
+- for number fields that must stay integer-only, prefer the PocketBase JS field option `onlyInt: true`
+- for relation fields, use the concrete related collection id created earlier in the same migration when needed
+
+Bool field warning:
+- in PocketBase JS migrations, `type: "bool", required: true` means the stored value must be `true`
+- do not use `required: true` for bool fields that legitimately need to store `false`
+- for flags such as `queue_dirty`, `build_running`, `rerun_requested`, `active`, `visible`, or `featured`, allow the field and seed explicit values on created records instead of forcing `required: true`
+
+Failure recovery note:
+- if an early bootstrap migration fails partway through on a development database, clear the partial dev state before retrying so the next run starts from a clean schema baseline
+- do not assume a partially applied `0001` can always be retried safely without cleanup
+
+---
+
+## 12. Reference migration pattern
 
 ```javascript
 // pb_migrations/0001_initial_schema.js
@@ -223,7 +244,7 @@ migrate(
 
 ---
 
-## 12. Review checklist
+## 13. Review checklist
 
 Before considering migration work complete, verify:
 - every durable collection change exists in `pb_migrations/`

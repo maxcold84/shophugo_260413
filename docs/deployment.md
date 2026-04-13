@@ -37,16 +37,24 @@ where tailwindcss  # must resolve
 # A known-good location is:
 # %LOCALAPPDATA%\\Microsoft\\WinGet\\Links\\tailwindcss.exe
 
-# 2. Start PocketBase
+# 2. Start PocketBase with explicit repo-local paths
 cd pocketbase/
-./pocketbase serve --http="0.0.0.0:8090"
+./serve.ps1
 
 # PocketBase will automatically:
 #   - apply pending migrations from pb_migrations/
-#   - load pb_hooks/*.pb.js
+#   - load pb_hooks/main.pb.js
 #   - serve pb_public/ as static files
 #   - start cron workers defined in hooks
 ```
+
+Hook loading notes:
+- treat `pb_hooks/main.pb.js` as the PocketBase JSVM entrypoint
+- load shared helper scripts from `main.pb.js` into the same JSVM context
+- do not rely on `module.exports` or Node/CommonJS module boundaries inside PocketBase hook entrypoints
+- if PocketBase reports `ReferenceError: module is not defined`, check whether a hook file is assuming Node/CommonJS semantics
+- if routes return `404` even though hook files exist, first confirm PocketBase is using this repo's `--hooksDir` and not the executable's default external path
+- if routes return generic `400` JSON with custom hook paths, check whether helper symbols are crossing JSVM file boundaries incorrectly; prefer loading helpers from `main.pb.js` in one shared context
 
 On first startup:
 - Create a superuser through PocketBase admin UI at `/_/`
@@ -58,6 +66,16 @@ If Hugo reports `binary with name "tailwindcss" not found using npx`:
 - prefer the Tailwind standalone executable over a repo-local npm install
 - on Windows, copy or install `tailwindcss.exe` into `%LOCALAPPDATA%\\Microsoft\\WinGet\\Links\\`
 - restart PocketBase after changing machine or user PATH if the service was already running
+
+If `GET /cms/login` returns `404`:
+- do not debug the route first
+- verify the PocketBase process was started with:
+  - `--dir=<repo>/pocketbase/pb_data`
+  - `--hooksDir=<repo>/pocketbase/pb_hooks`
+  - `--migrationsDir=<repo>/pocketbase/pb_migrations`
+  - `--publicDir=<repo>/pocketbase/pb_public`
+- the default values may point to the PocketBase binary's own directory, especially when using a globally installed binary
+- `serve.ps1` exists to avoid this drift
 
 ---
 
@@ -223,6 +241,11 @@ echo "pocketbase-version: 0.25.x" >> .env.example
 # Simple HTTP health check
 curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8090/
 # Should return 200 when pb_public has content
+
+# Verify custom hook routes are loaded
+curl -I http://127.0.0.1:8090/cms/login
+curl -I http://127.0.0.1:8090/fragments/cart/checkout-summary
+# Both should return 200 and HTML content type
 ```
 
 ### Key metrics to watch
@@ -260,7 +283,9 @@ PocketBase logs to stdout by default. In production, redirect to a file or log a
 
 Before considering deployment ready, verify:
 - PocketBase starts and serves `pb_public/`
+- PocketBase is started against this repo's `pb_data/`, `pb_hooks/`, `pb_migrations/`, and `pb_public/` directories
 - migrations apply cleanly on fresh database
+- `pb_hooks/main.pb.js` loads and custom CMS/fragment routes respond
 - CMS login works with HTTPS cookies
 - Hugo build completes via cron hook
 - robots.txt disallows `/cms/`, `/api/`, `/actions/`, `/fragments/`

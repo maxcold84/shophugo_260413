@@ -1,4 +1,4 @@
-module.exports = {
+globalThis.STORE_CONFIG = {
     cms: {
         cookieName: "cms_session",
         cookiePath: "/cms",
@@ -13,7 +13,7 @@ module.exports = {
         secure: false
     },
     build: {
-        cronSpec: "*/5 * * * * *",
+        cronSpec: "* * * * *",
         quietWindowMs: 3000,
         staleLockMs: 300000,
         lockOwner: "pb_hooks.build",

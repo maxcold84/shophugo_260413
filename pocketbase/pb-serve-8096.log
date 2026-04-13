@@ -1,0 +1,20 @@
+failed to execute auth.pb.js:
+ - ReferenceError: module is not defined at D:\cod\codex\pokcet-hugo\pocketbase\pb.js:51:1(16)
+failed to execute cms.pb.js:
+ - ReferenceError: module is not defined at D:\cod\codex\pokcet-hugo\pocketbase\pb.js:65:1(25)
+failed to execute main.pb.js:
+ - ReferenceError: onServe is not defined at D:\cod\codex\pokcet-hugo\pocketbase\pb.js:4:8(17)
+failed to execute stock.pb.js:
+ - ReferenceError: module is not defined at D:\cod\codex\pokcet-hugo\pocketbase\pb.js:54:1(17)
+failed to execute cart.pb.js:
+ - ReferenceError: module is not defined at D:\cod\codex\pokcet-hugo\pocketbase\pb.js:47:1(16)
+failed to execute categories.pb.js:
+ - ReferenceError: module is not defined at D:\cod\codex\pokcet-hugo\pocketbase\pb.js:195:1(30)
+failed to execute checkout.pb.js:
+ - ReferenceError: module is not defined at D:\cod\codex\pokcet-hugo\pocketbase\pb.js:147:1(22)
+failed to execute products.pb.js:
+ - ReferenceError: module is not defined at D:\cod\codex\pokcet-hugo\pocketbase\pb.js:276:1(32)
+2026/04/14 00:37:48 Server started at http://127.0.0.1:8096
+├─ REST API:  http://127.0.0.1:8096/api/
+└─ Dashboard: http://127.0.0.1:8096/_/
+File D:\cod\codex\pokcet-hugo\pocketbase\pb_hooks\main.pb.js changed, please restart the app manually
