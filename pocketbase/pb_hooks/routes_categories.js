@@ -1,6 +1,6 @@
-require(__hooks + "/auth.js");
-require(__hooks + "/build.js");
-require(__hooks + "/utils.js");
+var auth = globalThis.STORE_AUTH;
+var build = globalThis.STORE_BUILD;
+var utils = globalThis.STORE_UTILS;
 
 function loadCategory(id) {
     return $app.findRecordById("categories", id);
@@ -31,7 +31,7 @@ function categoryListPage(session) {
             visible: records[i].getBool("visible")
         });
     }
-    return globalThis.STORE_UTILS.renderCmsPage("categories-list.html", {
+    return utils.renderCmsPage("categories-list.html", {
         page_title: "Categories",
         active_nav: "categories",
         csrf_token: session.getString("csrf_token"),
@@ -40,7 +40,7 @@ function categoryListPage(session) {
 }
 
 function categoryFormPage(session, values, errors, mode) {
-    return globalThis.STORE_UTILS.renderCmsPage("category-form.html", {
+    return utils.renderCmsPage("category-form.html", {
         page_title: mode === "edit" ? "Edit Category" : "New Category",
         active_nav: "categories",
         csrf_token: session.getString("csrf_token"),
@@ -56,10 +56,10 @@ function extractCategoryValues(c, existing) {
     return {
         id: existing ? existing.id : "",
         name: String(c.request().formValue("name") || (existing ? existing.getString("name") : "")).replace(/^\s+|\s+$/g, ""),
-        slug: String(c.request().formValue("slug") || "").replace(/^\s+|\s+$/g, "") || globalThis.STORE_UTILS.slugify(c.request().formValue("name") || ""),
+        slug: String(c.request().formValue("slug") || "").replace(/^\s+|\s+$/g, "") || utils.slugify(c.request().formValue("name") || ""),
         description: String(c.request().formValue("description") || ""),
-        visible: globalThis.STORE_UTILS.parseBoolean(c.request().formValue("visible")),
-        sort_order: globalThis.STORE_UTILS.parseInteger(c.request().formValue("sort_order"), 0),
+        visible: utils.parseBoolean(c.request().formValue("visible")),
+        sort_order: utils.parseInteger(c.request().formValue("sort_order"), 0),
         meta_title: String(c.request().formValue("meta_title") || ""),
         meta_desc: String(c.request().formValue("meta_desc") || "")
     };
@@ -96,7 +96,7 @@ function persistCategory(record, values, c) {
     $app.save(record);
 }
 
-globalThis.STORE_CATEGORIES = {
+STORE_CATEGORIES = {
     loadCategory: loadCategory,
     serializeCategory: serializeCategory,
     categoryListPage: categoryListPage,
@@ -108,19 +108,19 @@ globalThis.STORE_CATEGORIES = {
 
 function registerCategoryRoutes() {
     routerAdd("GET", "/cms/categories", function(c) {
-        var gate = globalThis.STORE_AUTH.requireCmsAuth(c);
+        var gate = auth.requireCmsAuth(c);
         if (!gate.ok) {
             return gate.response;
         }
-        return c.html(200, globalThis.STORE_CATEGORIES.categoryListPage(gate.session));
+        return c.html(200, STORE_CATEGORIES.categoryListPage(gate.session));
     });
 
     routerAdd("GET", "/cms/categories/new", function(c) {
-        var gate = globalThis.STORE_AUTH.requireCmsAuth(c);
+        var gate = auth.requireCmsAuth(c);
         if (!gate.ok) {
             return gate.response;
         }
-        return c.html(200, globalThis.STORE_CATEGORIES.categoryFormPage(gate.session, {
+        return c.html(200, STORE_CATEGORIES.categoryFormPage(gate.session, {
             id: "",
             name: "",
             slug: "",
@@ -133,7 +133,7 @@ function registerCategoryRoutes() {
     });
 
     routerAdd("POST", "/cms/categories", function(c) {
-        var gate = globalThis.STORE_AUTH.requireCmsAuth(c);
+        var gate = auth.requireCmsAuth(c);
         var collection;
         var record;
         var values;
@@ -141,65 +141,66 @@ function registerCategoryRoutes() {
         if (!gate.ok) {
             return gate.response;
         }
-        if (!globalThis.STORE_AUTH.validateCsrf(c, gate.session)) {
-            return globalThis.STORE_AUTH.rejectCsrf(c);
+        if (!auth.validateCsrf(c, gate.session)) {
+            return auth.rejectCsrf(c);
         }
-        values = globalThis.STORE_CATEGORIES.extractCategoryValues(c, null);
-        errors = globalThis.STORE_CATEGORIES.validateCategoryInput(values, "");
+        values = STORE_CATEGORIES.extractCategoryValues(c, null);
+        errors = STORE_CATEGORIES.validateCategoryInput(values, "");
         if (Object.keys(errors).length) {
-            return c.html(422, globalThis.STORE_CATEGORIES.categoryFormPage(gate.session, values, errors, "new"));
+            return c.html(422, STORE_CATEGORIES.categoryFormPage(gate.session, values, errors, "new"));
         }
         collection = $app.findCollectionByNameOrId("categories");
         record = new Record(collection);
-        globalThis.STORE_CATEGORIES.persistCategory(record, values, c);
-        globalThis.STORE_BUILD.markBuildDirty("cms_category_create");
+        STORE_CATEGORIES.persistCategory(record, values, c);
+        build.markBuildDirty("cms_category_create");
         return c.redirect(302, "/cms/categories");
     });
 
     routerAdd("GET", "/cms/categories/:id/edit", function(c) {
-        var gate = globalThis.STORE_AUTH.requireCmsAuth(c);
+        var gate = auth.requireCmsAuth(c);
         if (!gate.ok) {
             return gate.response;
         }
-        return c.html(200, globalThis.STORE_CATEGORIES.categoryFormPage(gate.session, globalThis.STORE_CATEGORIES.serializeCategory(globalThis.STORE_CATEGORIES.loadCategory(c.pathParam("id"))), {}, "edit"));
+        return c.html(200, STORE_CATEGORIES.categoryFormPage(gate.session, STORE_CATEGORIES.serializeCategory(STORE_CATEGORIES.loadCategory(c.pathParam("id"))), {}, "edit"));
     });
 
     routerAdd("POST", "/cms/categories/:id", function(c) {
-        var gate = globalThis.STORE_AUTH.requireCmsAuth(c);
+        var gate = auth.requireCmsAuth(c);
         var record;
         var values;
         var errors;
         if (!gate.ok) {
             return gate.response;
         }
-        if (!globalThis.STORE_AUTH.validateCsrf(c, gate.session)) {
-            return globalThis.STORE_AUTH.rejectCsrf(c);
+        if (!auth.validateCsrf(c, gate.session)) {
+            return auth.rejectCsrf(c);
         }
-        record = globalThis.STORE_CATEGORIES.loadCategory(c.pathParam("id"));
-        values = globalThis.STORE_CATEGORIES.extractCategoryValues(c, record);
-        errors = globalThis.STORE_CATEGORIES.validateCategoryInput(values, record.id);
+        record = STORE_CATEGORIES.loadCategory(c.pathParam("id"));
+        values = STORE_CATEGORIES.extractCategoryValues(c, record);
+        errors = STORE_CATEGORIES.validateCategoryInput(values, record.id);
         if (Object.keys(errors).length) {
-            return c.html(422, globalThis.STORE_CATEGORIES.categoryFormPage(gate.session, values, errors, "edit"));
+            return c.html(422, STORE_CATEGORIES.categoryFormPage(gate.session, values, errors, "edit"));
         }
-        globalThis.STORE_CATEGORIES.persistCategory(record, values, c);
-        globalThis.STORE_BUILD.markBuildDirty("cms_category_update");
+        STORE_CATEGORIES.persistCategory(record, values, c);
+        build.markBuildDirty("cms_category_update");
         return c.redirect(302, "/cms/categories");
     });
 
     routerAdd("POST", "/cms/categories/:id/delete", function(c) {
-        var gate = globalThis.STORE_AUTH.requireCmsAuth(c);
+        var gate = auth.requireCmsAuth(c);
         var record;
         if (!gate.ok) {
             return gate.response;
         }
-        if (!globalThis.STORE_AUTH.validateCsrf(c, gate.session)) {
-            return globalThis.STORE_AUTH.rejectCsrf(c);
+        if (!auth.validateCsrf(c, gate.session)) {
+            return auth.rejectCsrf(c);
         }
-        record = globalThis.STORE_CATEGORIES.loadCategory(c.pathParam("id"));
+        record = STORE_CATEGORIES.loadCategory(c.pathParam("id"));
         $app.delete(record);
-        globalThis.STORE_BUILD.markBuildDirty("cms_category_delete");
+        build.markBuildDirty("cms_category_delete");
         return c.redirect(302, "/cms/categories");
     });
 }
 
 registerCategoryRoutes();
+

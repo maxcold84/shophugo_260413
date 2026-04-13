@@ -69,6 +69,10 @@ Current hook layout:
 - `config.js`, `utils.js`, `auth.js`, `build.js`, `cart.js` are shared helper sources loaded by `main.pb.js`
 - `routes_*.js` files register routes/cron jobs inside the same JSVM context
 
+Static serving note:
+- `pocketbase/serve.ps1` runs with `--indexFallback=false`
+- this project is not an SPA, so unknown routes should fail clearly instead of silently returning the storefront home page
+
 Tailwind processing notes:
 - the storefront uses Hugo native `css.TailwindCSS`
 - `pocketbase/hugo-site/config.toml` enables `buildStats` and mounts `hugo_stats.json`

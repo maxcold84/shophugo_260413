@@ -1,6 +1,6 @@
-require(__hooks + "/auth.js");
-require(__hooks + "/build.js");
-require(__hooks + "/utils.js");
+var auth = globalThis.STORE_AUTH;
+var build = globalThis.STORE_BUILD;
+var utils = globalThis.STORE_UTILS;
 
 function findCategories() {
     return $app.findRecordsByFilter("categories", "id != ''", "sort_order asc,name asc", 500, 0);
@@ -51,13 +51,13 @@ function listProductsPage(session) {
             sku: records[i].getString("sku"),
             name: records[i].getString("name"),
             slug: records[i].getString("slug"),
-            price_label: globalThis.STORE_UTILS.formatMoney(records[i].getInt("price")),
+            price_label: utils.formatMoney(records[i].getInt("price")),
             stock: records[i].getInt("stock"),
             active: records[i].getBool("active"),
             visible: records[i].getBool("visible")
         });
     }
-    return globalThis.STORE_UTILS.renderCmsPage("products-list.html", {
+    return utils.renderCmsPage("products-list.html", {
         page_title: "Products",
         active_nav: "products",
         csrf_token: session.getString("csrf_token"),
@@ -77,7 +77,7 @@ function productFormPage(session, values, errors, mode) {
             checked: !!selected[categories[i].id]
         });
     }
-    return globalThis.STORE_UTILS.renderCmsPage("product-form.html", {
+    return utils.renderCmsPage("product-form.html", {
         page_title: mode === "edit" ? "Edit Product" : "New Product",
         active_nav: "products",
         csrf_token: session.getString("csrf_token"),
@@ -125,20 +125,20 @@ function extractProductValues(c, existing) {
         id: existing ? existing.id : "",
         sku: String(c.request().formValue("sku") || (existing ? existing.getString("sku") : "")).replace(/^\s+|\s+$/g, ""),
         name: String(c.request().formValue("name") || (existing ? existing.getString("name") : "")).replace(/^\s+|\s+$/g, ""),
-        slug: String(c.request().formValue("slug") || "").replace(/^\s+|\s+$/g, "") || globalThis.STORE_UTILS.slugify(c.request().formValue("name") || ""),
-        price: globalThis.STORE_UTILS.parseInteger(c.request().formValue("price"), 0),
-        compare_price: globalThis.STORE_UTILS.parseInteger(c.request().formValue("compare_price"), 0),
-        stock: globalThis.STORE_UTILS.parseInteger(c.request().formValue("stock"), 0),
+        slug: String(c.request().formValue("slug") || "").replace(/^\s+|\s+$/g, "") || utils.slugify(c.request().formValue("name") || ""),
+        price: utils.parseInteger(c.request().formValue("price"), 0),
+        compare_price: utils.parseInteger(c.request().formValue("compare_price"), 0),
+        stock: utils.parseInteger(c.request().formValue("stock"), 0),
         description_markdown: String(c.request().formValue("description_markdown") || ""),
         short_description: String(c.request().formValue("short_description") || ""),
-        categories: globalThis.STORE_UTILS.getFormValues(c, "categories"),
-        tags: globalThis.STORE_UTILS.normalizeTags(c.request().formValue("tags")),
-        active: globalThis.STORE_UTILS.parseBoolean(c.request().formValue("active")),
-        featured: globalThis.STORE_UTILS.parseBoolean(c.request().formValue("featured")),
-        visible: globalThis.STORE_UTILS.parseBoolean(c.request().formValue("visible")),
+        categories: utils.getFormValues(c, "categories"),
+        tags: utils.normalizeTags(c.request().formValue("tags")),
+        active: utils.parseBoolean(c.request().formValue("active")),
+        featured: utils.parseBoolean(c.request().formValue("featured")),
+        visible: utils.parseBoolean(c.request().formValue("visible")),
         meta_title: String(c.request().formValue("meta_title") || ""),
         meta_desc: String(c.request().formValue("meta_desc") || ""),
-        sort_order: globalThis.STORE_UTILS.parseInteger(c.request().formValue("sort_order"), 0)
+        sort_order: utils.parseInteger(c.request().formValue("sort_order"), 0)
     };
 }
 
@@ -166,7 +166,7 @@ function persistProduct(record, values, c) {
     $app.save(record);
 }
 
-globalThis.STORE_PRODUCTS = {
+STORE_PRODUCTS = {
     findCategories: findCategories,
     loadProduct: loadProduct,
     serializeProduct: serializeProduct,
@@ -179,19 +179,19 @@ globalThis.STORE_PRODUCTS = {
 
 function registerProductRoutes() {
     routerAdd("GET", "/cms/products", function(c) {
-        var gate = globalThis.STORE_AUTH.requireCmsAuth(c);
+        var gate = auth.requireCmsAuth(c);
         if (!gate.ok) {
             return gate.response;
         }
-        return c.html(200, globalThis.STORE_PRODUCTS.listProductsPage(gate.session));
+        return c.html(200, STORE_PRODUCTS.listProductsPage(gate.session));
     });
 
     routerAdd("GET", "/cms/products/new", function(c) {
-        var gate = globalThis.STORE_AUTH.requireCmsAuth(c);
+        var gate = auth.requireCmsAuth(c);
         if (!gate.ok) {
             return gate.response;
         }
-        return c.html(200, globalThis.STORE_PRODUCTS.productFormPage(gate.session, {
+        return c.html(200, STORE_PRODUCTS.productFormPage(gate.session, {
             id: "",
             sku: "",
             name: "",
@@ -213,7 +213,7 @@ function registerProductRoutes() {
     });
 
     routerAdd("POST", "/cms/products", function(c) {
-        var gate = globalThis.STORE_AUTH.requireCmsAuth(c);
+        var gate = auth.requireCmsAuth(c);
         var collection;
         var record;
         var values;
@@ -221,67 +221,68 @@ function registerProductRoutes() {
         if (!gate.ok) {
             return gate.response;
         }
-        if (!globalThis.STORE_AUTH.validateCsrf(c, gate.session)) {
-            return globalThis.STORE_AUTH.rejectCsrf(c);
+        if (!auth.validateCsrf(c, gate.session)) {
+            return auth.rejectCsrf(c);
         }
-        values = globalThis.STORE_PRODUCTS.extractProductValues(c, null);
-        errors = globalThis.STORE_PRODUCTS.validateProductInput(values, "");
+        values = STORE_PRODUCTS.extractProductValues(c, null);
+        errors = STORE_PRODUCTS.validateProductInput(values, "");
         if (Object.keys(errors).length) {
-            return c.html(422, globalThis.STORE_PRODUCTS.productFormPage(gate.session, values, errors, "new"));
+            return c.html(422, STORE_PRODUCTS.productFormPage(gate.session, values, errors, "new"));
         }
         collection = $app.findCollectionByNameOrId("products");
         record = new Record(collection);
-        globalThis.STORE_PRODUCTS.persistProduct(record, values, c);
-        globalThis.STORE_BUILD.markBuildDirty("cms_product_create");
+        STORE_PRODUCTS.persistProduct(record, values, c);
+        build.markBuildDirty("cms_product_create");
         return c.redirect(302, "/cms/products");
     });
 
     routerAdd("GET", "/cms/products/:id/edit", function(c) {
-        var gate = globalThis.STORE_AUTH.requireCmsAuth(c);
+        var gate = auth.requireCmsAuth(c);
         var record;
         if (!gate.ok) {
             return gate.response;
         }
-        record = globalThis.STORE_PRODUCTS.loadProduct(c.pathParam("id"));
-        return c.html(200, globalThis.STORE_PRODUCTS.productFormPage(gate.session, globalThis.STORE_PRODUCTS.serializeProduct(record), {}, "edit"));
+        record = STORE_PRODUCTS.loadProduct(c.pathParam("id"));
+        return c.html(200, STORE_PRODUCTS.productFormPage(gate.session, STORE_PRODUCTS.serializeProduct(record), {}, "edit"));
     });
 
     routerAdd("POST", "/cms/products/:id", function(c) {
-        var gate = globalThis.STORE_AUTH.requireCmsAuth(c);
+        var gate = auth.requireCmsAuth(c);
         var record;
         var values;
         var errors;
         if (!gate.ok) {
             return gate.response;
         }
-        if (!globalThis.STORE_AUTH.validateCsrf(c, gate.session)) {
-            return globalThis.STORE_AUTH.rejectCsrf(c);
+        if (!auth.validateCsrf(c, gate.session)) {
+            return auth.rejectCsrf(c);
         }
-        record = globalThis.STORE_PRODUCTS.loadProduct(c.pathParam("id"));
-        values = globalThis.STORE_PRODUCTS.extractProductValues(c, record);
-        errors = globalThis.STORE_PRODUCTS.validateProductInput(values, record.id);
+        record = STORE_PRODUCTS.loadProduct(c.pathParam("id"));
+        values = STORE_PRODUCTS.extractProductValues(c, record);
+        errors = STORE_PRODUCTS.validateProductInput(values, record.id);
         if (Object.keys(errors).length) {
-            return c.html(422, globalThis.STORE_PRODUCTS.productFormPage(gate.session, values, errors, "edit"));
+            return c.html(422, STORE_PRODUCTS.productFormPage(gate.session, values, errors, "edit"));
         }
-        globalThis.STORE_PRODUCTS.persistProduct(record, values, c);
-        globalThis.STORE_BUILD.markBuildDirty("cms_product_update");
+        STORE_PRODUCTS.persistProduct(record, values, c);
+        build.markBuildDirty("cms_product_update");
         return c.redirect(302, "/cms/products");
     });
 
     routerAdd("POST", "/cms/products/:id/delete", function(c) {
-        var gate = globalThis.STORE_AUTH.requireCmsAuth(c);
+        var gate = auth.requireCmsAuth(c);
         var record;
         if (!gate.ok) {
             return gate.response;
         }
-        if (!globalThis.STORE_AUTH.validateCsrf(c, gate.session)) {
-            return globalThis.STORE_AUTH.rejectCsrf(c);
+        if (!auth.validateCsrf(c, gate.session)) {
+            return auth.rejectCsrf(c);
         }
-        record = globalThis.STORE_PRODUCTS.loadProduct(c.pathParam("id"));
+        record = STORE_PRODUCTS.loadProduct(c.pathParam("id"));
         $app.delete(record);
-        globalThis.STORE_BUILD.markBuildDirty("cms_product_delete");
+        build.markBuildDirty("cms_product_delete");
         return c.redirect(302, "/cms/products");
     });
 }
 
 registerProductRoutes();
+

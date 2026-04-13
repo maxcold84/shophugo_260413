@@ -1,9 +1,9 @@
-require(__hooks + "/auth.js");
-require(__hooks + "/utils.js");
+var auth = globalThis.STORE_AUTH;
+var utils = globalThis.STORE_UTILS;
 
 function registerAuthRoutes() {
     routerAdd("GET", "/cms/login", function(c) {
-        return c.html(200, globalThis.STORE_AUTH.renderLoginPage("", {}));
+        return c.html(200, auth.renderLoginPage("", {}));
     });
 
     routerAdd("POST", "/cms/login", function(c) {
@@ -13,7 +13,7 @@ function registerAuthRoutes() {
         var session;
 
         if (!email || !password) {
-            return c.html(422, globalThis.STORE_AUTH.renderLoginPage("Email and password are required.", { email: email }));
+            return c.html(422, auth.renderLoginPage("Email and password are required.", { email: email }));
         }
 
         try {
@@ -23,29 +23,30 @@ function registerAuthRoutes() {
             }
         } catch (e) {
             $app.logger().warn("CMS login failed", "email", email, "ip", c.realIP());
-            return c.html(401, globalThis.STORE_AUTH.renderLoginPage("Invalid credentials.", { email: email }));
+            return c.html(401, auth.renderLoginPage("Invalid credentials.", { email: email }));
         }
 
-        session = globalThis.STORE_AUTH.createSession(admin);
-        globalThis.STORE_AUTH.setCmsCookie(c, session);
+        session = auth.createSession(admin);
+        auth.setCmsCookie(c, session);
         $app.logger().info("CMS login success", "email", email);
         return c.redirect(302, "/cms/dashboard");
     });
 
     routerAdd("POST", "/cms/logout", function(c) {
-        var gate = globalThis.STORE_AUTH.requireCmsAuth(c);
+        var gate = auth.requireCmsAuth(c);
         if (!gate.ok) {
-            globalThis.STORE_AUTH.clearCmsCookie(c);
+            auth.clearCmsCookie(c);
             return c.redirect(302, "/cms/login");
         }
-        if (!globalThis.STORE_AUTH.validateCsrf(c, gate.session)) {
-            return globalThis.STORE_AUTH.rejectCsrf(c);
+        if (!auth.validateCsrf(c, gate.session)) {
+            return auth.rejectCsrf(c);
         }
-        gate.session.set("revoked_at", globalThis.STORE_UTILS.nowIso());
+        gate.session.set("revoked_at", utils.nowIso());
         $app.save(gate.session);
-        globalThis.STORE_AUTH.clearCmsCookie(c);
+        auth.clearCmsCookie(c);
         return c.redirect(302, "/cms/login");
     });
 }
 
 registerAuthRoutes();
+

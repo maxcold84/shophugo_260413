@@ -46,6 +46,7 @@ cd pocketbase/
 #   - load pb_hooks/main.pb.js
 #   - serve pb_public/ as static files
 #   - start cron workers defined in hooks
+#   - keep index fallback disabled so missing CMS/fragment routes are not masked
 ```
 
 Hook loading notes:
@@ -76,6 +77,11 @@ If `GET /cms/login` returns `404`:
   - `--publicDir=<repo>/pocketbase/pb_public`
 - the default values may point to the PocketBase binary's own directory, especially when using a globally installed binary
 - `serve.ps1` exists to avoid this drift
+
+If an unknown CMS or fragment path returns the storefront home page:
+- check whether PocketBase was started with `--indexFallback=true`
+- for this repository, default startup should keep `--indexFallback=false`
+- this app uses real static routes from Hugo output, not SPA history fallback
 
 ---
 
