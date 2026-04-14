@@ -1,0 +1,41 @@
+[8.00ms] CREATE TABLE IF NOT EXISTS `_migrations` (file VARCHAR(255) PRIMARY KEY NOT NULL, applied INTEGER NOT NULL)
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1640988000_aux_init.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1640988000_init.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1717233556_v0.23_migrate.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1717233557_v0.23_migrate2.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1717233558_v0.23_migrate3.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1717233559_v0.23_migrate4.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1763020353_update_default_auth_alert_templates.go' LIMIT 1
+[4.00ms] SELECT `_collections`.* FROM `_collections` ORDER BY `rowid` ASC
+[0.00ms] SELECT `_params`.* FROM `_params` WHERE `id`='settings'
+[0.00ms] SELECT `_collections`.* FROM `_collections` ORDER BY `rowid` ASC
+[0.00ms] CREATE TABLE IF NOT EXISTS `_migrations` (file VARCHAR(255) PRIMARY KEY NOT NULL, applied INTEGER NOT NULL)
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='0001_initial_schema.js' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1640988000_aux_init.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1640988000_init.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1717233556_v0.23_migrate.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1717233557_v0.23_migrate2.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1717233558_v0.23_migrate3.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1717233559_v0.23_migrate4.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1763020353_update_default_auth_alert_templates.go' LIMIT 1
+2026/04/14 03:32:24 Server started at http://127.0.0.1:8122
+├─ REST API:  http://127.0.0.1:8122/api/
+└─ Dashboard: http://127.0.0.1:8122/_/
+[0.00ms] SELECT count(*) FROM `_superusers` WHERE NOT (`email`='__pbinstaller@example.com')
+INFO GET /cms/login
+ERROR GET /cms/dashboard
+└─ TypeError: Not a function: [object Object] at D:\cod\codex\pokcet-hugo\pocketbase\pb.js:2:28(5)
+ERROR GET /cms/builds
+└─ TypeError: Not a function: [object Object] at D:\cod\codex\pokcet-hugo\pocketbase\pb.js:2:28(5)
+ERROR GET /cms/fragments/build-status
+└─ TypeError: Not a function: [object Object] at D:\cod\codex\pokcet-hugo\pocketbase\pb.js:2:28(5)
+INFO GET /fragments/cart/checkout-summary
+File D:\cod\codex\pokcet-hugo\pocketbase\pb_hooks\request-debug.pb.js changed, please restart the app manually
+File D:\cod\codex\pokcet-hugo\pocketbase\pb_hooks\cms-builds-min.pb.js changed, please restart the app manually
+File D:\cod\codex\pokcet-hugo\pocketbase\pb_hooks\cms-login.pb.js changed, please restart the app manually
+File D:\cod\codex\pokcet-hugo\pocketbase\pb_hooks\cms-builds-min.pb.js changed, please restart the app manually
+File D:\cod\codex\pokcet-hugo\pocketbase\pb_hooks\cms-builds-min.pb.js changed, please restart the app manually
+File D:\cod\codex\pokcet-hugo\pocketbase\pb_hooks\cms-categories-min.pb.js changed, please restart the app manually
+File D:\cod\codex\pokcet-hugo\pocketbase\pb_hooks\cms-categories-min.pb.js changed, please restart the app manually
+File D:\cod\codex\pokcet-hugo\pocketbase\pb_hooks\cms-products-min.pb.js changed, please restart the app manually
+File D:\cod\codex\pokcet-hugo\pocketbase\pb_hooks\cms-categories-min.pb.js changed, please restart the app manually

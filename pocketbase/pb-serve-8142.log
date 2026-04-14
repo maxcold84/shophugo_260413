@@ -1,0 +1,62 @@
+[3.00ms] CREATE TABLE IF NOT EXISTS `_migrations` (file VARCHAR(255) PRIMARY KEY NOT NULL, applied INTEGER NOT NULL)
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1640988000_aux_init.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1640988000_init.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1717233556_v0.23_migrate.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1717233557_v0.23_migrate2.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1717233558_v0.23_migrate3.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1717233559_v0.23_migrate4.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1763020353_update_default_auth_alert_templates.go' LIMIT 1
+[2.00ms] SELECT `_collections`.* FROM `_collections` ORDER BY `rowid` ASC
+[0.00ms] SELECT `_params`.* FROM `_params` WHERE `id`='settings'
+[0.00ms] SELECT `_collections`.* FROM `_collections` ORDER BY `rowid` ASC
+[0.00ms] CREATE TABLE IF NOT EXISTS `_migrations` (file VARCHAR(255) PRIMARY KEY NOT NULL, applied INTEGER NOT NULL)
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='0001_initial_schema.js' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1640988000_aux_init.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1640988000_init.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1717233556_v0.23_migrate.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1717233557_v0.23_migrate2.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1717233558_v0.23_migrate3.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1717233559_v0.23_migrate4.go' LIMIT 1
+[0.00ms] SELECT (1) FROM `_migrations` WHERE `file`='1763020353_update_default_auth_alert_templates.go' LIMIT 1
+2026/04/14 11:44:40 Server started at http://127.0.0.1:8142
+├─ REST API:  http://127.0.0.1:8142/api/
+└─ Dashboard: http://127.0.0.1:8142/_/
+[0.00ms] SELECT count(*) FROM `_superusers` WHERE NOT (`email`='__pbinstaller@example.com')
+[3.00ms] SELECT `_superusers`.* FROM `_superusers` WHERE `email`='dev-codex@example.com' LIMIT 1
+[0.00ms] SELECT `_collections`.* FROM `_collections` WHERE `id`='cms_sessions' OR LOWER(`name`)='cms_sessions' LIMIT 1
+[0.00ms] INSERT INTO `cms_sessions` (`admin_ref`, `csrf_token`, `expires_at`, `id`, `last_seen_at`, `revoked_at`, `session_id`) VALUES ('w7s6tr17s988bu3', 'iu2tth8xoa74oktzz67n1wppfcruqbgigccxfnbg', '2026-04-14 06:46:02.186Z', '4iwjzijyf326kqz', '2026-04-14 02:46:02.186Z', '', 'vlfpk0nzn067ip4nczcnlbjwlin08vwmv6z08vft')
+INFO POST /cms/login
+[0.00ms] SELECT `cms_sessions`.* FROM `cms_sessions` WHERE (`cms_sessions`.`session_id` = 'vlfpk0nzn067ip4nczcnlbjwlin08vwmv6z08vft' AND `cms_sessions`.`expires_at` > '2026-04-14T02:46:02.198Z' AND (`cms_sessions`.`revoked_at` = '' OR `cms_sessions`.`revoked_at` IS NULL)) LIMIT 1
+INFO GET /cms/dashboard
+INFO GET /cms/login
+[0.00ms] SELECT `cms_sessions`.* FROM `cms_sessions` WHERE (`cms_sessions`.`session_id` = 'vlfpk0nzn067ip4nczcnlbjwlin08vwmv6z08vft' AND `cms_sessions`.`expires_at` > '2026-04-14T02:46:02.229Z' AND (`cms_sessions`.`revoked_at` = '' OR `cms_sessions`.`revoked_at` IS NULL)) LIMIT 1
+INFO GET /cms/categories/new
+INFO GET /cms/login
+[0.00ms] SELECT `cms_sessions`.* FROM `cms_sessions` WHERE (`cms_sessions`.`session_id` = 'vlfpk0nzn067ip4nczcnlbjwlin08vwmv6z08vft' AND `cms_sessions`.`expires_at` > '2026-04-14T02:46:02.251Z' AND (`cms_sessions`.`revoked_at` = '' OR `cms_sessions`.`revoked_at` IS NULL)) LIMIT 1
+INFO GET /cms/categories
+INFO GET /cms/login
+[0.00ms] SELECT `cms_sessions`.* FROM `cms_sessions` WHERE (`cms_sessions`.`session_id` = 'vlfpk0nzn067ip4nczcnlbjwlin08vwmv6z08vft' AND `cms_sessions`.`expires_at` > '2026-04-14T02:46:02.257Z' AND (`cms_sessions`.`revoked_at` = '' OR `cms_sessions`.`revoked_at` IS NULL)) LIMIT 1
+INFO POST /cms/categories
+INFO GET /cms/login
+[0.00ms] SELECT `cms_sessions`.* FROM `cms_sessions` WHERE (`cms_sessions`.`session_id` = 'vlfpk0nzn067ip4nczcnlbjwlin08vwmv6z08vft' AND `cms_sessions`.`expires_at` > '2026-04-14T02:46:02.261Z' AND (`cms_sessions`.`revoked_at` = '' OR `cms_sessions`.`revoked_at` IS NULL)) LIMIT 1
+INFO POST /cms/categories
+INFO GET /cms/login
+[0.00ms] SELECT `cms_sessions`.* FROM `cms_sessions` WHERE (`cms_sessions`.`session_id` = 'vlfpk0nzn067ip4nczcnlbjwlin08vwmv6z08vft' AND `cms_sessions`.`expires_at` > '2026-04-14T02:46:02.269Z' AND (`cms_sessions`.`revoked_at` = '' OR `cms_sessions`.`revoked_at` IS NULL)) LIMIT 1
+INFO POST /cms/categories
+INFO GET /cms/login
+[0.00ms] SELECT `_superusers`.* FROM `_superusers` WHERE `email`='dev-codex@example.com' LIMIT 1
+[0.00ms] SELECT `_authOrigins`.* FROM `_authOrigins` WHERE `collectionRef`='pbc_3142635823' AND `recordRef`='w7s6tr17s988bu3' ORDER BY `created` DESC
+[0.00ms] SELECT `_collections`.* FROM `_collections` WHERE `id`='pbc_3142635823'
+[0.00ms] SELECT (1) FROM `_superusers` WHERE `id`='w7s6tr17s988bu3' LIMIT 1
+[0.00ms] UPDATE `_authOrigins` SET `collectionRef`='pbc_3142635823', `created`='2026-04-14 02:03:15.489Z', `fingerprint`='faf393170592f0de910039027514eae8', `id`='gqa5b57noc81396', `recordRef`='w7s6tr17s988bu3', `updated`='2026-04-14 02:46:02.370Z' WHERE `id`='gqa5b57noc81396'
+INFO POST /api/collections/_superusers/auth-with-password
+[0.00ms] SELECT `_superusers`.* FROM `_superusers` WHERE `_superusers`.`id`='w7s6tr17s988bu3' LIMIT 1
+[0.00ms] SELECT `build_state`.* FROM `build_state` LIMIT 1
+[0.00ms] SELECT COUNT(DISTINCT `build_state`.`_rowid_`) FROM `build_state`
+INFO GET /api/collections/build_state/records?perPage=1
+[0.00ms] SELECT `_superusers`.* FROM `_superusers` WHERE `_superusers`.`id`='w7s6tr17s988bu3' LIMIT 1
+[0.00ms] SELECT `categories`.* FROM `categories` LIMIT 200
+[6.00ms] SELECT COUNT(DISTINCT `categories`.`_rowid_`) FROM `categories`
+INFO GET /api/collections/categories/records?perPage=200
+File D:\cod\codex\pokcet-hugo\pocketbase\pb_hooks\cms-categories-min.pb.js changed, please restart the app manually
+File D:\cod\codex\pokcet-hugo\pocketbase\pb_hooks\cms-categories-min.pb.js changed, please restart the app manually

@@ -253,7 +253,7 @@ Compatibility notes:
 - A coarser cron cadence is acceptable as long as the quiet-window decision still uses persisted `build_state.last_changed_at`.
 
 ```javascript
-// pb_hooks/build.pb.js — cron worker (ES5 only)
+// pb_hooks/build runtime entrypoint — cron worker (ES5 only)
 cronAdd("build_check", "* * * * *", function() {
     var states = $app.findRecordsByFilter("build_state", "id != ''", "", 1, 0);
     if (!states || states.length === 0) { return; }
@@ -292,7 +292,7 @@ cronAdd("build_check", "* * * * *", function() {
 ### Hugo invocation
 
 ```javascript
-// pb_hooks/build.pb.js — Hugo build runner (ES5 only)
+// pb_hooks/build runtime entrypoint — Hugo build runner (ES5 only)
 function runBuild(app, state) {
     var startMs = Date.now();
     var result;

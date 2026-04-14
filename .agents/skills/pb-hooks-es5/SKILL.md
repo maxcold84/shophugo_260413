@@ -10,7 +10,7 @@ PocketBase 0.36+ with pb_hooks JavaScript only.
 
 ## Required coding rules
 - Use conservative ES5-style JavaScript.
-- Use `require()`.
+- Use `require()` only in plain helper `.js` files when the runtime behavior is proven stable.
 - No arrow functions.
 - No async/await.
 - No Promise assumptions.
@@ -24,6 +24,7 @@ PocketBase 0.36+ with pb_hooks JavaScript only.
 - Deterministic handlers.
 - Explicit validation and early rejection.
 - Straightforward synchronous flows where practical.
+- Prefer small self-contained `*.pb.js` route entrypoints over Node/CommonJS-style multi-file composition.
 - Small helpers with clear ownership.
 - Clear fail-closed behavior for security-sensitive paths.
 
@@ -35,14 +36,12 @@ PocketBase 0.36+ with pb_hooks JavaScript only.
 5. Confirm logs are meaningful and conservative.
 
 ## Typical file targets
-- `auth.pb.js`
-- `build.pb.js`
-- `cms.pb.js`
-- `products.pb.js`
-- `categories.pb.js`
-- `cart.pb.js`
-- `checkout.pb.js`
-- `stock.pb.js`
+- `cms-login.pb.js`
+- `cms-dashboard-min.pb.js`
+- `cms-builds-min.pb.js`
+- `cms-products-min.pb.js`
+- `cms-categories-min.pb.js`
+- `checkoutsummary.pb.js`
 - `utils.js`
 - `config.js`
 

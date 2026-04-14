@@ -1,7 +1,3 @@
-$app.logger().info("loading checkout-summary.pb.js");
-
-$app.logger().info("loading checkoutsummary.pb.js");
-
 routerAdd("GET", "/fragments/cart/checkout-summary", function(c) {
     return c.html(200, [
         "<div class=\"rounded-3xl border border-slate-200 bg-white p-6 shadow-sm\">",

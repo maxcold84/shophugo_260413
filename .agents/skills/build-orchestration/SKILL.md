@@ -8,8 +8,8 @@ Use this skill whenever a task touches export, build queue state, Hugo invocatio
 ## Compose with pocketbase-alt-port
 When build verification needs a fresh local PocketBase instance, use `.agents/skills/pocketbase-alt-port/SKILL.md` together with this skill.
 Prefer:
-- `powershell -ExecutionPolicy Bypass -File pocketbase/ensure-alt-port.ps1 -Port <preferred-port> -Dev`
-- reusing the currently running repo-local verification port before launching another one
+- `powershell -ExecutionPolicy Bypass -File pocketbase/start-alt-port.ps1 -Port <fresh-port> -Dev`
+- a fresh localhost port when build/export behavior may be masked by an older dev server
 - repo-local `pb_data`, `pb_hooks`, `pb_migrations`, and `pb_public` only
 
 Use this composition when:

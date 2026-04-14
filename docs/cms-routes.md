@@ -49,7 +49,7 @@ For full auth contract details, see `docs/auth-session.md`.
 
 Summary rules:
 - PocketBase remains stateless by default
-- the CMS session wrapper must be implemented explicitly in `pb_hooks/auth.pb.js`
+- the CMS session wrapper must be implemented explicitly in active PocketBase `pb_hooks/*.pb.js` CMS route entrypoints
 - privileged authorization must be checked server-side on every CMS request
 - privileged POST routes must include synchronizer-token CSRF protections
 - admin or superuser tokens must never be exposed to browser JavaScript
@@ -94,6 +94,13 @@ Expected CMS routes:
 - `GET  /cms/fragments/build-status`
 
 The exact route names may vary slightly if the implementation is internally consistent, but the above shape is the target contract.
+
+Current verified minimal baseline on April 14, 2026:
+- `GET /cms/login` returns `200` HTML
+- unauthenticated `GET /cms/dashboard` redirects to `/cms/login`
+- unauthenticated `GET /cms/builds` redirects to `/cms/login`
+- unauthenticated `GET /cms/fragments/build-status` returns `401`
+- authenticated `dashboard`, `builds`, `products`, and `categories` pages render through the current minimal CMS route set
 
 ---
 
@@ -243,32 +250,34 @@ The following CMS interactions must not trigger builds:
 
 ## 11. File ownership
 
-Expected ownership by hook file:
+Current verified ownership by active hook file:
 
-- `auth.pb.js`
+- `cms-login.pb.js`
   - login handler, logout handler
-  - cookie session helpers
-  - CMS auth guard helpers
+  - session creation
+  - logout invalidation
+  - CMS cookie and CSRF issuance
 
-- `cms.pb.js`
+- `cms-dashboard-min.pb.js`
   - CMS dashboard routes
-  - shared CMS route registration
+
+- `cms-builds-min.pb.js`
+  - build status page route
   - build status fragment route
-  - common CMS rendering helpers
 
-- `products.pb.js`
+- `cms-products-min.pb.js`
   - product list route
-  - product form routes
-  - product create/update/delete handlers
-  - build dirtiness signaling for product mutations
+  - minimal product create entry route
 
-- `categories.pb.js`
+- `cms-categories-min.pb.js`
   - category list route
-  - category form routes
-  - category create/update/delete handlers
-  - build dirtiness signaling for category mutations
+  - minimal category create entry route
 
-Keep the ownership simple and internally consistent.
+- `checkoutsummary.pb.js`
+  - runtime checkout summary fragment route
+
+Legacy experimental files may remain beside these as `*.pb.js.disabled` or `.bak`.
+Those are not active runtime entrypoints and must not be treated as loaded hooks.
 
 ---
 

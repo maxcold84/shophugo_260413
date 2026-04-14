@@ -2,28 +2,26 @@
   "version": 1,
   "active": true,
   "skill": "ultrawork",
-  "keyword": "parallel",
+  "keyword": "ultrawork",
   "phase": "planning",
-  "activated_at": "2026-04-13T13:08:54.886Z",
-  "updated_at": "2026-04-13T13:08:54.886Z",
+  "activated_at": "2026-04-14T02:55:54.081Z",
+  "updated_at": "2026-04-14T02:55:54.081Z",
   "source": "keyword-detector",
   "session_id": "",
-  "thread_id": "019d86f4-cebf-7363-bba2-d6be4f6400a7",
-  "turn_id": "019d86f4-e7d1-7ec0-828a-08f8ce38fd88",
+  "thread_id": "019d89ea-7c42-7051-aa3e-2f252eb29ffc",
+  "turn_id": "019d89ea-7db6-7be2-9663-bda17b5fd028",
   "active_skills": [
     {
       "skill": "ultrawork",
       "phase": "planning",
       "active": true,
-      "activated_at": "2026-04-13T13:08:54.886Z",
-      "updated_at": "2026-04-13T13:08:54.886Z",
+      "activated_at": "2026-04-14T02:55:54.081Z",
+      "updated_at": "2026-04-14T02:55:54.081Z",
       "session_id": "",
-      "thread_id": "019d86f4-cebf-7363-bba2-d6be4f6400a7",
-      "turn_id": "019d86f4-e7d1-7ec0-828a-08f8ce38fd88"
+      "thread_id": "019d89ea-7c42-7051-aa3e-2f252eb29ffc",
+      "turn_id": "019d89ea-7db6-7be2-9663-bda17b5fd028"
     }
   ],
   "initialized_mode": "ultrawork",
-  "initialized_state_path": ".omx/state/ultrawork-state.json",
-  "iteration": 24,
-  "last_turn_at": "2026-04-13T18:00:39.890Z"
+  "initialized_state_path": ".omx/state/ultrawork-state.json"
 }

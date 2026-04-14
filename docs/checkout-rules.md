@@ -244,7 +244,7 @@ Summary of critical rules:
 ### Reference pattern — compare-and-update stock decrement
 
 ```javascript
-// pb_hooks/checkout.pb.js — stock decrement (ES5 only)
+// pb_hooks/checkout runtime entrypoint — stock decrement (ES5 only)
 function decrementStock(app, productId, requestedQty) {
     var product = app.findRecordById("products", productId);
     var currentStock = product.getInt("stock");

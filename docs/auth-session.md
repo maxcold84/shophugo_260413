@@ -52,6 +52,11 @@ The CMS auth model must be:
 
 Do not pretend there is a built-in server-side admin session manager.
 
+PocketBase JSVM request note:
+- official JSVM docs expose the request on `e.request`
+- local verification in this repository confirmed `formValue` and `cookie` should be read from `c.request`
+- do not use `c.request()` in this repository's auth/session examples
+
 ---
 
 ## 3. Session cookie rules
@@ -104,10 +109,10 @@ On failure:
 ### Reference pattern
 
 ```javascript
-// pb_hooks/auth.pb.js — login handler (ES5 only)
+// pb_hooks/cms-login.pb.js — login handler (ES5 only)
 routerAdd("POST", "/cms/login", function(c) {
-    var email = c.request().formValue("email");
-    var password = c.request().formValue("password");
+    var email = String(c.request.formValue("email") || "").replace(/^\s+|\s+$/g, "");
+    var password = String(c.request.formValue("password") || "");
 
     if (!email || !password) {
         return c.html(400, renderLogin({ error: "Email and password are required." }));
@@ -127,29 +132,28 @@ routerAdd("POST", "/cms/login", function(c) {
     // Create persistent session
     var sessionId = $security.randomStringWithAlphabet(40, "abcdefghijklmnopqrstuvwxyz0123456789");
     var csrfToken = $security.randomStringWithAlphabet(40, "abcdefghijklmnopqrstuvwxyz0123456789");
-    var now = new Date().toISOString();
     var expiresAt = new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(); // 4 hours
 
     var sessions = $app.findCollectionByNameOrId("cms_sessions");
     var record = new Record(sessions);
     record.set("session_id", sessionId);
-    record.set("admin_ref", admin.id());
+    record.set("admin_ref", admin.id);
     record.set("csrf_token", csrfToken);
     record.set("expires_at", expiresAt);
-    record.set("last_seen_at", now);
+    record.set("last_seen_at", new Date().toISOString());
 
     $app.save(record);
 
     // Set HttpOnly cookie
-    c.setCookie({
-        name:     "cms_session",
-        value:    sessionId,
-        path:     "/cms",
+    c.setCookie(new Cookie({
+        name: "cms_session",
+        value: sessionId,
+        path: "/cms",
         httpOnly: true,
         sameSite: 2, // Strict
-        secure:   false, // set true in production with TLS
-        maxAge:   4 * 60 * 60
-    });
+        secure: false, // set true in production with TLS
+        maxAge: 4 * 60 * 60
+    }));
 
     return c.redirect(302, "/cms/dashboard");
 });
@@ -196,14 +200,14 @@ Unauthorized behavior:
 ### Reference pattern
 
 ```javascript
-// pb_hooks/auth.pb.js — auth guard helper (ES5 only)
+// pb_hooks/cms-login.pb.js or equivalent auth helper (ES5 only)
 function requireCmsAuth(c) {
-    var cookie = c.request().cookie("cms_session");
+    var cookie = c.request.cookie("cms_session");
     if (!cookie) {
         return null;
     }
 
-    var sessionId = cookie.value();
+    var sessionId = String(cookie.value || "");
     if (!sessionId) {
         return null;
     }
@@ -213,7 +217,7 @@ function requireCmsAuth(c) {
         records = $app.findRecordsByFilter(
             "cms_sessions",
             "session_id = {:sid} && expires_at > {:now} && revoked_at = ''",
-            "-created",
+            "",
             1,
             0,
             { sid: sessionId, now: new Date().toISOString() }
@@ -312,9 +316,9 @@ Security failures must fail closed.
 ### Reference pattern — CSRF validation
 
 ```javascript
-// pb_hooks/auth.pb.js — CSRF check helper (ES5 only)
+// pb_hooks/cms-login.pb.js or equivalent auth helper (ES5 only)
 function validateCsrf(c, session) {
-    var submitted = c.request().formValue("_csrf");
+    var submitted = c.request.formValue("_csrf");
     var expected = session.getString("csrf_token");
 
     if (!submitted || !expected || submitted !== expected) {

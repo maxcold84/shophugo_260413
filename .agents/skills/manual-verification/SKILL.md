@@ -8,8 +8,8 @@ Use this skill near the end of a task when behavior changed in auth, CMS CRUD, b
 ## Compose with pocketbase-alt-port
 When verification needs a disposable local PocketBase runtime, use `.agents/skills/pocketbase-alt-port/SKILL.md` together with this skill.
 Prefer:
-- `powershell -ExecutionPolicy Bypass -File pocketbase/ensure-alt-port.ps1 -Port <preferred-port> -Dev`
-- reusing the currently running repo-local verification port before launching another one
+- `powershell -ExecutionPolicy Bypass -File pocketbase/start-alt-port.ps1 -Port <fresh-port> -Dev`
+- a fresh localhost port for each verification cycle when hook loading or JSVM behavior is in doubt
 - checking `/`, `/cms/login`, and `/fragments/cart/checkout-summary` before deeper scenario testing
 
 Use this composition when:

@@ -35,13 +35,14 @@ These scenarios must pass before considering any major implementation complete.
 1. Delete `pb_data/` (fresh database)
 2. Start PocketBase with repo-local paths
 3. Preferred: `cd pocketbase && .\serve.ps1`
-4. If using a global `pocketbase.exe`, pass `--dir`, `--hooksDir`, `--migrationsDir`, and `--publicDir` explicitly
-5. Verify the process is not pointing at another installation's default directories
-6. Verify migrations apply without errors
-7. Verify PocketBase admin UI is accessible at `/_/`
-8. Create a superuser account
-9. Verify `/cms/login` page renders
-10. Verify `GET /fragments/cart/checkout-summary` returns HTML
+4. For disposable hook debugging, use `powershell -ExecutionPolicy Bypass -File pocketbase/start-alt-port.ps1 -Port <fresh-port> -Dev`
+5. If using a global `pocketbase.exe`, pass `--dir`, `--hooksDir`, `--migrationsDir`, and `--publicDir` explicitly
+6. Verify the process is not pointing at another installation's default directories
+7. Verify migrations apply without errors
+8. Verify PocketBase admin UI is accessible at `/_/`
+9. Create a superuser account
+10. Verify `/cms/login` page renders
+11. Verify `GET /fragments/cart/checkout-summary` returns HTML
 
 If Scenario 1 fails during bootstrap:
 - treat the failed run as potentially partial state
@@ -54,7 +55,7 @@ If Scenario 1 fails with `404` on custom routes:
 
 If Scenario 1 fails with `ReferenceError: module is not defined`:
 - treat it as a PocketBase JSVM/CommonJS mismatch
-- keep the single-entry `pb_hooks/main.pb.js` loader structure and do not convert `.pb.js` entrypoints into Node-style modules
+- keep active `*.pb.js` entrypoints small and self-contained instead of composing them like Node modules
 
 If Scenario 1 fails with generic PocketBase `400` JSON on custom HTML routes:
 - inspect the dev server logs immediately
@@ -65,6 +66,7 @@ If Scenario 1 fails with generic PocketBase `400` JSON on custom HTML routes:
   - `TypeError: Cannot read property 'renderLoginPage' of undefined or null`
   - `ReferenceError: CONFIG is not defined`
 - re-check hook composition before debugging form inputs or route patterns
+- if request-shape assumptions are in doubt, temporarily verify the event with a route like `/__debug-request` before rewriting auth or fragment logic
 
 ### Scenario 2: CMS authentication
 1. Navigate to `/cms/dashboard` — expect redirect to `/cms/login`
@@ -75,6 +77,11 @@ If Scenario 1 fails with generic PocketBase `400` JSON on custom HTML routes:
 6. Open browser console — verify no admin tokens in `localStorage` or JS-accessible cookies
 7. Click logout — expect cookie cleared, session invalidated
 8. Navigate to `/cms/dashboard` — expect redirect to `/cms/login`
+
+Current verified baseline on April 14, 2026:
+- unauthenticated `dashboard` and `builds` routes redirected to `/cms/login`
+- unauthenticated `build-status` fragment returned `401`
+- authenticated `dashboard`, `builds`, `products`, and `categories` access was confirmed with a temporary dev superuser
 
 ### Scenario 3: Product CRUD
 1. Navigate to `/cms/products/new`

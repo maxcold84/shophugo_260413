@@ -111,14 +111,13 @@ pocketbase/
 │   ├── views/
 │   │   ├── cms/
 │   │   └── hda/
-│   ├── auth.pb.js
-│   ├── build.pb.js
-│   ├── cms.pb.js
-│   ├── products.pb.js
-│   ├── categories.pb.js
-│   ├── cart.pb.js
-│   ├── checkout.pb.js
-│   ├── stock.pb.js
+│   ├── cms-login.pb.js
+│   ├── cms-dashboard-min.pb.js
+│   ├── cms-builds-min.pb.js
+│   ├── cms-products-min.pb.js
+│   ├── cms-categories-min.pb.js
+│   ├── checkoutsummary.pb.js
+│   ├── request-debug.pb.js
 │   ├── utils.js
 │   └── config.js
 ├── pb_migrations/
@@ -153,10 +152,17 @@ In pb_hooks:
 - no in-memory queue state as durable truth
 
 Use:
-- `require()`
+- `require()` only in plain helper `.js` files when the runtime behavior is proven stable
 - explicit validation
 - deterministic handlers
 - straightforward synchronous flows where practical
+
+Runtime note:
+- PocketBase JSVM route handlers are registered with `routerAdd(...)`
+- official JSVM docs expose the request as `e.request`
+- in this repository, prefer small self-contained `*.pb.js` route entrypoints
+- do not treat `.pb.js` entrypoints as Node/CommonJS modules
+- do not assume helper scope or `module.exports` composition will survive into route callbacks
 
 ---
 
@@ -246,11 +252,11 @@ All failures must be logged server-side and surfaced as HTML to the user. Securi
 
 1. define migrations
 2. implement shared config/constants and schema-aligned helpers
-3. implement build.pb.js
-4. implement auth.pb.js
-5. implement cms.pb.js
-6. implement products.pb.js and categories.pb.js
-7. implement cart.pb.js, checkout.pb.js, and stock.pb.js
+3. implement build/runtime shared config and helpers
+4. implement CMS login/logout and auth-guard entrypoints
+5. implement CMS dashboard/build-status entrypoints
+6. implement product/category CMS entrypoints
+7. implement cart/checkout/stock entrypoints and fragments
 8. implement Hugo config and input.css
 9. implement layouts, partials, CMS views, and fragments
 

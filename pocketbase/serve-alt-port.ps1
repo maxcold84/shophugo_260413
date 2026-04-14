@@ -4,6 +4,12 @@ param(
 )
 
 $root = Split-Path -Parent $MyInvocation.MyCommand.Path
+$resolver = Join-Path $root 'resolve-pocketbase.ps1'
+$pocketbaseExe = & $resolver
+
+if (-not $pocketbaseExe) {
+  exit 1
+}
 
 $args = @(
   'serve',
@@ -19,4 +25,4 @@ if ($Dev) {
   $args = @('--dev') + $args
 }
 
-pocketbase @args
+& $pocketbaseExe @args

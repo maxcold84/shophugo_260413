@@ -41,21 +41,24 @@ where tailwindcss  # must resolve
 cd pocketbase/
 ./serve.ps1
 
+# If your shell still resolves an older PocketBase binary, set:
+# $env:POCKETBASE_BIN='D:\\path\\to\\pocketbase.exe'
+
 # PocketBase will automatically:
 #   - apply pending migrations from pb_migrations/
-#   - load pb_hooks/main.pb.js
+#   - load active pb_hooks/*.pb.js entrypoints
 #   - serve pb_public/ as static files
 #   - start cron workers defined in hooks
 #   - keep index fallback disabled so missing CMS/fragment routes are not masked
 ```
 
 Hook loading notes:
-- treat `pb_hooks/main.pb.js` as the PocketBase JSVM entrypoint
-- load shared helper scripts from `main.pb.js` into the same JSVM context
+- prefer small self-contained `*.pb.js` entrypoints for PocketBase JSVM routes
 - do not rely on `module.exports` or Node/CommonJS module boundaries inside PocketBase hook entrypoints
+- repo scripts now resolve the PocketBase binary explicitly and fail fast when the resolved version is older than `0.36`
 - if PocketBase reports `ReferenceError: module is not defined`, check whether a hook file is assuming Node/CommonJS semantics
 - if routes return `404` even though hook files exist, first confirm PocketBase is using this repo's `--hooksDir` and not the executable's default external path
-- if routes return generic `400` JSON with custom hook paths, check whether helper symbols are crossing JSVM file boundaries incorrectly; prefer loading helpers from `main.pb.js` in one shared context
+- if routes return generic `400` JSON with custom hook paths, check whether callback code depends on helper scope that PocketBase JSVM does not preserve
 - if dev logs show `renderLoginPage is not defined`, `renderCheckoutSummary is not defined`, `Cannot read property 'renderLoginPage' of undefined or null`, or `CONFIG is not defined`, treat that as a JSVM callback-scope failure rather than a normal route validation issue
 
 On first startup:
@@ -71,6 +74,8 @@ If Hugo reports `binary with name "tailwindcss" not found using npx`:
 
 If `GET /cms/login` returns `404`:
 - do not debug the route first
+- verify the repo script did not stop on an old binary resolution error
+- if it did, set `POCKETBASE_BIN` to the intended `0.36+` executable or place that binary inside `pocketbase/`
 - verify the PocketBase process was started with:
   - `--dir=<repo>/pocketbase/pb_data`
   - `--hooksDir=<repo>/pocketbase/pb_hooks`
@@ -91,7 +96,16 @@ If a custom HTML route returns generic PocketBase `400` JSON:
 
 If you need a disposable debug instance:
 - use `powershell -ExecutionPolicy Bypass -File pocketbase/start-alt-port.ps1 -Port <fresh-port> -Dev`
-- prefer a fresh localhost port over reusing an unknown old dev instance
+- prefer a fresh localhost port for each verification cycle while chasing JSVM or hook-loading issues
+- reserve `pocketbase/ensure-alt-port.ps1` for intentional reuse of an already-known repo-local instance
+
+Current verified baseline on April 14, 2026:
+- `GET /cms/login` -> `200` HTML
+- unauthenticated `GET /cms/dashboard` -> redirect to `/cms/login`
+- unauthenticated `GET /cms/builds` -> redirect to `/cms/login`
+- unauthenticated `GET /cms/fragments/build-status` -> `401`
+- `GET /fragments/cart/checkout-summary` -> `200` HTML
+- authenticated `dashboard`, `builds`, `products`, and `categories` were verified with a temporary dev superuser
 
 If an unknown CMS or fragment path returns the storefront home page:
 - check whether PocketBase was started with `--indexFallback=true`
@@ -108,27 +122,39 @@ Define these in a server-side config file (`pb_hooks/config.js`) or as environme
 
 ```javascript
 // pb_hooks/config.js — configuration (ES5 only)
-var CONFIG = {
+globalThis.STORE_CONFIG = {
     // Session
-    SESSION_COOKIE_NAME: "cms_session",
-    SESSION_DURATION_HOURS: 4,
-    SESSION_COOKIE_SECURE: true,  // set false for local dev without TLS
+    cms: {
+        cookieName: "cms_session",
+        cookiePath: "/cms",
+        sessionHours: 4,
+        sameSite: 2,
+        secure: true // set false for local dev without TLS
+    },
 
     // Build
-    QUIET_WINDOW_MS: 3000,
-    STALE_LOCK_THRESHOLD_MS: 300000,  // 5 minutes
-    HUGO_SOURCE_PATH: "hugo-site",
-    HUGO_DESTINATION_PATH: "pb_public",
+    build: {
+        cronSpec: "*/1 * * * *",
+        quietWindowMs: 3000,
+        staleLockMs: 300000,  // 5 minutes
+        lockOwner: "pb_hooks.build",
+        hugoSource: __hooks + "/../hugo-site",
+        hugoDestination: __hooks + "/../pb_public"
+    },
 
     // Inventory
-    LOW_STOCK_THRESHOLD: 5,
+    inventory: {
+        lowStockThreshold: 5
+    },
 
     // Site
-    SITE_BASE_URL: "https://example.com"
+    site: {
+        baseUrl: "https://example.com/"
+    }
 };
-
-module.exports = CONFIG;
 ```
+
+Avoid CommonJS export patterns inside active `.pb.js` hook entrypoints. Repeated local JSVM failures were caused by treating PocketBase route entrypoints like Node modules.
 
 ### Sensitive values
 
@@ -308,8 +334,10 @@ Before considering deployment ready, verify:
 - PocketBase starts and serves `pb_public/`
 - PocketBase is started against this repo's `pb_data/`, `pb_hooks/`, `pb_migrations/`, and `pb_public/` directories
 - migrations apply cleanly on fresh database
-- `pb_hooks/main.pb.js` loads and custom CMS/fragment routes respond
+- active `pb_hooks/*.pb.js` files load and custom CMS/fragment routes respond
 - `/cms/login` returns HTML rather than generic PocketBase `400` JSON
+- unauthenticated `/cms/dashboard` and `/cms/builds` redirect to `/cms/login`
+- unauthenticated `/cms/fragments/build-status` returns `401`
 - `/fragments/cart/checkout-summary` returns HTML rather than generic PocketBase `400` JSON
 - CMS login works with HTTPS cookies
 - Hugo build completes via cron hook
